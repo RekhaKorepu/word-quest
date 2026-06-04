@@ -184,11 +184,11 @@ export default function WelcomeScreen({
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#0F0A1E',
+    backgroundColor: '#000000',
   },
   container: {
     flex: 1,
-    backgroundColor: '#0F0A1E',
+    backgroundColor: '#000000',
     paddingHorizontal: 24,
     justifyContent: 'space-between',
     paddingBottom: 48,

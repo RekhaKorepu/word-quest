@@ -272,7 +272,7 @@ export default function PuzzleScreen({
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#0F0A1E' },
+  safeArea: { flex: 1, backgroundColor: '#000000' },
   flex: { flex: 1 },
   scroll: { flex: 1 },
   scrollContent: {

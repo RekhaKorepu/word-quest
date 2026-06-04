@@ -140,7 +140,7 @@ export default function GameCompletionScreen({
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#0F0A1E' },
+  safeArea: { flex: 1, backgroundColor: '#000000' },
   scrollContent: {
     paddingHorizontal: 24,
     paddingVertical: 32,

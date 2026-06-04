@@ -122,7 +122,7 @@ export default function LevelCompletionScreen({
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#0F0A1E' },
+  safeArea: { flex: 1, backgroundColor: '#000000' },
   container: {
     flex: 1,
     paddingHorizontal: 24,
