@@ -19,6 +19,16 @@ interface LevelResult {
   hintsUsed: number;
 }
 
+// Define VIRTUAL_LEVELS to allow infinite level scaling beyond static levels
+const VIRTUAL_LEVELS = [
+  ...LEVELS,
+  ...Array.from({ length: 9999 }, (_, i) => ({
+    levelNumber: i + LEVELS.length + 1,
+    puzzles: [] as any,
+  })),
+];
+const MAX_ENDLESS_LEVELS = 9999;
+
 export default function App() {
   const {
     gameState,
@@ -30,7 +40,7 @@ export default function App() {
     handleAdvancePuzzle,
     handleAdvanceLevel,
     handleStartNewGame,
-  } = useGameState(LEVELS);
+  } = useGameState(VIRTUAL_LEVELS);
 
   const [screen, setScreen] = useState<AppScreen>('welcome');
   const [showCongratsPopup, setShowCongratsPopup] = useState(false);
@@ -86,7 +96,7 @@ export default function App() {
     if (gameState.currentPuzzleIndex >= 2) {
       // Last puzzle in level
       setLevelResults(currentLevelResults);
-      if (gameState.currentLevelNumber >= TOTAL_LEVELS) {
+      if (gameState.currentLevelNumber >= MAX_ENDLESS_LEVELS) {
         handleAdvanceLevel();
         setScreen('gameComplete');
       } else {
@@ -195,7 +205,7 @@ export default function App() {
       {screen === 'gameComplete' && (
         <GameCompletionScreen
           finalScore={gameState.cumulativeScore}
-          totalLevels={TOTAL_LEVELS}
+          totalLevels={gameState.currentLevelNumber}
           onRestart={handleRestart}
         />
       )}

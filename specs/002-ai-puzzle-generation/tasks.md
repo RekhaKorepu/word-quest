@@ -24,8 +24,8 @@
 
 **Purpose**: Project initialization and environment configuration
 
-- [ ] T001 Configure environment configuration mapping for `EXPO_PUBLIC_GEMINI_API_KEY` in `src/utils/config.ts`
-- [ ] T002 Update `.env.example` at the root directory to include the `EXPO_PUBLIC_GEMINI_API_KEY` placeholder
+- [x] T001 Configure environment configuration mapping for `EXPO_PUBLIC_GEMINI_API_KEY` in `src/utils/config.ts`
+- [x] T002 Update `.env.example` at the root directory to include the `EXPO_PUBLIC_GEMINI_API_KEY` placeholder
 
 ---
 
@@ -35,7 +35,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Create local fallback database in `src/data/fallbackPuzzles.ts` containing at least 9 puzzles (split between easy and medium difficulties)
+- [x] T003 Create local fallback database in `src/data/fallbackPuzzles.ts` containing at least 9 puzzles (split between easy and medium difficulties)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -51,14 +51,14 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T004 [P] [US1] Create unit tests in `tests/gemini.test.ts` to verify the API service (mocking fetch requests and checking response handling)
-- [ ] T005 [P] [US1] Create unit tests in `tests/validationRules.test.ts` to verify validation rule checks (answering formats, hints length, question string limits)
+- [x] T004 [P] [US1] Create unit tests in `tests/gemini.test.ts` to verify the API service (mocking fetch requests and checking response handling)
+- [x] T005 [P] [US1] Create unit tests in `tests/validationRules.test.ts` to verify validation rule checks (answering formats, hints length, question string limits)
 
 ### Implementation for User Story 1
 
-- [ ] T006 [P] [US1] Implement Gemini API fetch service in `src/services/gemini.ts` to request puzzles of a specific difficulty using `fetch` with `responseMimeType: "application/json"`
-- [ ] T007 [US1] Implement validation checker functions in `src/services/puzzleManager.ts` to check puzzle schema validity
-- [ ] T008 [US1] Modify `src/hooks/useGameState.ts` and `App.tsx` to dynamically query and display puzzles from the manager instead of indexing static `LEVELS` array
+- [x] T006 [P] [US1] Implement Gemini API fetch service in `src/services/gemini.ts` to request puzzles of a specific difficulty using `fetch` with `responseMimeType: "application/json"`
+- [x] T007 [US1] Implement validation checker functions in `src/services/puzzleManager.ts` to check puzzle schema validity
+- [x] T008 [US1] Modify `src/hooks/useGameState.ts` and `App.tsx` to dynamically query and display puzzles from the manager instead of indexing static `LEVELS` array
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently.
 
@@ -72,12 +72,12 @@
 
 ### Tests for User Story 2
 
-- [ ] T009 [P] [US2] Create unit tests in `tests/puzzleQueue.test.ts` to verify queue operations (enqueue, dequeue, and prefetching triggers when sizes fall below 3)
+- [x] T009 [P] [US2] Create unit tests in `tests/puzzleQueue.test.ts` to verify queue operations (enqueue, dequeue, and prefetching triggers when sizes fall below 3)
 
 ### Implementation for User Story 2
 
-- [ ] T010 [US2] Implement the in-memory prefetch queue state machine in `src/services/puzzleManager.ts`
-- [ ] T011 [US2] Integrate the prefetch manager with the level change mechanics in `src/hooks/useGameState.ts` to trigger background loading on level initialization
+- [x] T010 [US2] Implement the in-memory prefetch queue state machine in `src/services/puzzleManager.ts`
+- [x] T011 [US2] Integrate the prefetch manager with the level change mechanics in `src/hooks/useGameState.ts` to trigger background loading on level initialization
 
 **Checkpoint**: At this point, User Stories 1 and 2 should both work independently.
 
@@ -91,11 +91,11 @@
 
 ### Tests for User Story 3
 
-- [ ] T012 [P] [US3] Create unit/integration tests in `tests/fallbackHandling.test.ts` to verify cooldown timers and fallback triggers under simulated API error/timeout conditions
+- [x] T012 [P] [US3] Create unit/integration tests in `tests/fallbackHandling.test.ts` to verify cooldown timers and fallback triggers under simulated API error/timeout conditions
 
 ### Implementation for User Story 3
 
-- [ ] T013 [US3] Implement the 60-second cooldown state tracker and local fallback puzzle selection logic in `src/services/puzzleManager.ts` (using data from `src/data/fallbackPuzzles.ts`)
+- [x] T013 [US3] Implement the 60-second cooldown state tracker and local fallback puzzle selection logic in `src/services/puzzleManager.ts` (using data from `src/data/fallbackPuzzles.ts`)
 
 **Checkpoint**: User Stories 1, 2, and 3 should now be independently functional.
 
@@ -109,11 +109,11 @@
 
 ### Tests for User Story 4
 
-- [ ] T014 [P] [US4] Create unit tests in `tests/difficultyScaling.test.ts` to verify puzzle difficulty selection percentages at level milestones
+- [x] T014 [P] [US4] Create unit tests in `tests/difficultyScaling.test.ts` to verify puzzle difficulty selection percentages at level milestones
 
 ### Implementation for User Story 4
 
-- [ ] T015 [US4] Implement difficulty selector logic (odds calculation) in `src/services/puzzleManager.ts` and pass the determined difficulty to the prefetching calls
+- [x] T015 [US4] Implement difficulty selector logic (odds calculation) in `src/services/puzzleManager.ts` and pass the determined difficulty to the prefetching calls
 
 **Checkpoint**: All user stories should now be independently functional.
 
@@ -123,8 +123,8 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T016 Perform code cleanup, refactor imports, and ensure no console logging leaks key secrets
-- [ ] T017 Run all manual verification flows defined in `specs/002-ai-puzzle-generation/quickstart.md`
+- [x] T016 Perform code cleanup, refactor imports, and ensure no console logging leaks key secrets
+- [x] T017 Run all manual verification flows defined in `specs/002-ai-puzzle-generation/quickstart.md`
 
 ---
 
