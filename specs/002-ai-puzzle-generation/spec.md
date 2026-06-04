@@ -6,7 +6,13 @@
 
 **Status**: Draft
 
-**Input**: User description: "The objective of Phase 2 is to replace the static puzzle repository with dynamically generated puzzles using the Gemini API. This phase transforms the game from a fixed-content experience into an endless puzzle platform capable of continuously creating new content for players. A dedicated Gemini puzzle generation service should be introduced. This service should be responsible for generating puzzle questions, answers, hints, and difficulty information. Every generated puzzle should follow a consistent structure so that the game can display and process it reliably. The service should be carefully prompted to generate puzzles that are easy for humans to solve and enjoyable for casual players. The difficulty system should be designed to heavily favor easy puzzles. During the early levels, all generated puzzles should be easy. As players progress through higher levels, medium-difficulty puzzles should gradually begin appearing, but they should remain a small percentage of the overall puzzle pool. Hard puzzles should never be generated because the target audience is casual players seeking a fun experience rather than extremely difficult challenges. Since AI-generated content can occasionally produce invalid results, a validation layer should be implemented. Every generated puzzle should be checked to ensure that it contains a valid answer, exactly three hints, reasonable question length, and safe content. Invalid puzzles should be discarded and regenerated automatically. To improve the user experience, puzzle prefetching and caching should be introduced. Future puzzles should be generated before they are needed so that players do not experience noticeable loading delays. If Gemini is unavailable or a network issue occurs, the application should automatically fall back to a local puzzle repository to ensure uninterrupted gameplay."
+**Input**: User description: "The objective of Phase 2 is to replace the static puzzle repository with dynamically generated puzzles using the Gemini API. This phase transforms the game from a fixed-content experience into an endless puzzle platform capable of continuously creating new content for players. A dedicated Gemini puzzle generation service should be introduced. This service should be responsible for generating puzzle questions, answers, hints, and difficulty information. Every generated puzzle should follow a consistent structure so that the game can display and process it reliably. The service should be carefully prompted to generate puzzles that are easy for humans to solve and enjoyable for casual players. The difficulty system should be designed to heavily favor easy puzzles. During the early levels, all generated puzzles should be easy. As players progress through higher levels, medium-difficulty puzzles should gradually begin appearing, but they should remain a small percentage of the overall puzzle pool. Hard puzzles should never be generated because the target audience is casual players seeking a fun experience rather than extremely difficult challenges. Since AI-generated content can occasionally produce invalid results, a validation layer should be implemented. Every generated puzzle should be checked to ensure that it contains a valid answer, exactly three hints, reasonable question length, and safe content. Invalid puzzles should be discarded and regenerated automatically. To improve the user experience, puzzle prefetching and caching should be introduced. Future puzzles should be generated before they are needed so that players do not experience noticeable loading delays. If Gemini is unavailable or a network issue occurs, the application should automatically fall back to a local puzzle repository to ensure uninterrupted gameplay. The primary outcome of this phase is the creation of an unlimited supply of dynamically generated puzzles while preserving puzzle quality, reliability, and gameplay balance."
+
+## Clarifications
+
+### Session 2026-06-04
+- Q: When Gemini fails and the app uses local fallback puzzles, how should they be selected? → A: Select a puzzle matching the currently requested difficulty (easy/medium).
+- Q: How should the system handle the cooldown period after a Gemini API error before attempting to query it again? → A: Cooldown for a fixed period (e.g., 60 seconds) using local fallbacks immediately before retrying.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -89,12 +95,13 @@ As a casual player, I want the puzzles to be easy at the beginning and only slig
   - No flagged or inappropriate terms.
 - **FR-004**: The system MUST discard invalid puzzles and automatically request a replacement from the service.
 - **FR-005**: The system MUST implement a prefetch queue that caches up to 3 validated puzzles in advance of the user's current puzzle.
-- **FR-006**: The system MUST implement a fallback mechanism that returns a puzzle from a local static repository if the Gemini API request fails or times out (timeout threshold: 5 seconds).
+- **FR-006**: The system MUST implement a fallback mechanism that returns a puzzle from a local static repository if the Gemini API request fails or times out (timeout threshold: 5 seconds). The fallback puzzle MUST be selected to match the currently requested difficulty level (easy/medium) to preserve game progression.
 - **FR-007**: The system MUST determine puzzle difficulty based on player level:
   - Level 1 & 2: 100% Easy puzzles.
   - Level 3 & 4: 90% Easy / 10% Medium puzzles.
   - Level 5+: 80% Easy / 20% Medium puzzles.
   - Hard puzzles MUST NOT be generated or loaded.
+- **FR-008**: The system MUST implement a request cooldown mechanism of 60 seconds following a Gemini API failure. During this period, all prefetch attempts MUST bypass the API and retrieve local fallback puzzles directly.
 
 ### Key Entities
 
