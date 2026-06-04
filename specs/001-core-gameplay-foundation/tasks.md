@@ -24,8 +24,8 @@
 
 **Purpose**: Project initialization and basic structure.
 
-- [ ] T001 Create project directories and subdirectories in `src/components/`, `src/data/`, `src/hooks/`, `src/utils/`, and `tests/` per implementation plan
-- [ ] T002 Verify that TypeScript and Vitest packages are configured and dependencies installed in `package.json`
+- [X] T001 Create project directories and subdirectories in `src/components/`, `src/data/`, `src/hooks/`, `src/utils/`, and `tests/` per implementation plan
+- [X] T002 Verify that TypeScript and Vitest packages are configured and dependencies installed in `package.json`
 
 ---
 
@@ -35,11 +35,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T003 [P] Implement static local puzzles dataset in `src/data/puzzles.ts` (contains 3 levels, each with exactly 3 puzzles containing question, answer, and 3 hints)
-- [ ] T004 [P] Implement normalized answer validation helper in `src/utils/validation.ts` (ignores casing, leading/trailing spaces, and duplicate internal spaces)
-- [ ] T005 Configure Vitest test environment runner config in `package.json`
+- [X] T003 [P] Implement static local puzzles dataset in `src/data/puzzles.ts` (contains 3 levels, each with exactly 3 puzzles containing question, answer, and 3 hints)
+- [X] T004 [P] Implement normalized answer validation helper in `src/utils/validation.ts` (ignores casing, leading/trailing spaces, and duplicate internal spaces)
+- [X] T005 Configure Vitest test environment runner config in `package.json`
 
-**Checkpoint**: Foundation ready - user story implementation can now begin.
+**Checkpoint**: Foundation ready - user story implementation can now begin. ✅
 
 ---
 
@@ -53,14 +53,14 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T006 [P] [US1] Write unit test for validation helper in `tests/validation.test.ts`
+- [X] T006 [P] [US1] Write unit test for validation helper in `tests/validation.test.ts`
 
 ### Implementation for User Story 1
 
-- [ ] T007 [US1] Create basic WelcomeScreen UI component in `src/components/WelcomeScreen.tsx`
-- [ ] T008 [US1] Configure WelcomeScreen as the entry screen in `App.tsx`
+- [X] T007 [US1] Create basic WelcomeScreen UI component in `src/components/WelcomeScreen.tsx`
+- [X] T008 [US1] Configure WelcomeScreen as the entry screen in `App.tsx`
 
-**Checkpoint**: Welcome Screen is functional and routes to the game.
+**Checkpoint**: Welcome Screen is functional and routes to the game. ✅
 
 ---
 
@@ -72,15 +72,15 @@
 
 ### Tests for User Story 2
 
-- [ ] T009 [P] [US2] Write unit test for core puzzle guessing state transitions (correct guess, incorrect guess, out of guesses) in `tests/useGameState.test.ts`
+- [X] T009 [P] [US2] Write unit test for core puzzle guessing state transitions (correct guess, incorrect guess, out of guesses) in `tests/useGameState.test.ts`
 
 ### Implementation for User Story 2
 
-- [ ] T010 [P] [US2] Implement state hook `useGameState.ts` in `src/hooks/useGameState.ts` (handling initial guessing logic, normalization, attempt decrementing, correct/incorrect action transitions)
-- [ ] T011 [US2] Create PuzzleScreen UI component in `src/components/PuzzleScreen.tsx`
-- [ ] T012 [US2] Integrate PuzzleScreen with state hook and wire basic screen rendering in `App.tsx`
+- [X] T010 [P] [US2] Implement state hook `useGameState.ts` in `src/hooks/useGameState.ts` (handling initial guessing logic, normalization, attempt decrementing, correct/incorrect action transitions)
+- [X] T011 [US2] Create PuzzleScreen UI component in `src/components/PuzzleScreen.tsx`
+- [X] T012 [US2] Integrate PuzzleScreen with state hook and wire basic screen rendering in `App.tsx`
 
-**Checkpoint**: Main puzzle guessing screen and validation logic are fully functional.
+**Checkpoint**: Main puzzle guessing screen and validation logic are fully functional. ✅
 
 ---
 
@@ -92,14 +92,14 @@
 
 ### Tests for User Story 3
 
-- [ ] T013 [P] [US3] Write unit test for hint reveal and score deduction logic (`100 - 15 * hints_used`) in `tests/useGameState.test.ts`
+- [X] T013 [P] [US3] Write unit test for hint reveal and score deduction logic (`100 - 15 * hints_used`) in `tests/useGameState.test.ts`
 
 ### Implementation for User Story 3
 
-- [ ] T014 [US3] Update state hook `useGameState.ts` in `src/hooks/useGameState.ts` to implement hint indices tracking and score deduction calculations
-- [ ] T015 [US3] Update PuzzleScreen UI component in `src/components/PuzzleScreen.tsx` to display available hints and trigger hint actions
+- [X] T014 [US3] Update state hook `useGameState.ts` in `src/hooks/useGameState.ts` to implement hint indices tracking and score deduction calculations
+- [X] T015 [US3] Update PuzzleScreen UI component in `src/components/PuzzleScreen.tsx` to display available hints and trigger hint actions
 
-**Checkpoint**: Hints can be revealed with correct score deductions applied upon correct solution.
+**Checkpoint**: Hints can be revealed with correct score deductions applied upon correct solution. ✅
 
 ---
 
@@ -111,18 +111,18 @@
 
 ### Tests for User Story 4
 
-- [ ] T016 [P] [US4] Write unit test for level transition, game completion transition, state saving, and loading logic in `tests/useGameState.test.ts`
+- [X] T016 [P] [US4] Write unit test for level transition, game completion transition, state saving, and loading logic in `tests/useGameState.test.ts`
 
 ### Implementation for User Story 4
 
-- [ ] T017 [P] [US4] Implement congratulatory popup UI component in `src/components/CongratulatoryPopup.tsx`
-- [ ] T018 [P] [US4] Implement level completion summary UI component in `src/components/LevelCompletionScreen.tsx`
-- [ ] T019 [P] [US4] Implement game completion summary UI component in `src/components/GameCompletionScreen.tsx`
-- [ ] T020 [US4] Update state hook `useGameState.ts` in `src/hooks/useGameState.ts` to implement level/puzzle progression, game completion state, reset state logic, and AsyncStorage persistence
-- [ ] T021 [US4] Update WelcomeScreen UI component in `src/components/WelcomeScreen.tsx` to handle "Resume Game" (checks AsyncStorage) and "Start New Game" (resets state)
-- [ ] T022 [US4] Update components routing and UI wiring in `App.tsx` to support congratulations popup, level completion, game completion screen, and welcome screen state-based buttons
+- [X] T017 [P] [US4] Implement congratulatory popup UI component in `src/components/CongratulatoryPopup.tsx`
+- [X] T018 [P] [US4] Implement level completion summary UI component in `src/components/LevelCompletionScreen.tsx`
+- [X] T019 [P] [US4] Implement game completion summary UI component in `src/components/GameCompletionScreen.tsx`
+- [X] T020 [US4] Update state hook `useGameState.ts` in `src/hooks/useGameState.ts` to implement level/puzzle progression, game completion state, reset state logic, and AsyncStorage persistence
+- [X] T021 [US4] Update WelcomeScreen UI component in `src/components/WelcomeScreen.tsx` to handle "Resume Game" (checks AsyncStorage) and "Start New Game" (resets state)
+- [X] T022 [US4] Update components routing and UI wiring in `App.tsx` to support congratulations popup, level completion, game completion screen, and welcome screen state-based buttons
 
-**Checkpoint**: End-to-end progression loop is fully functional and persisted offline.
+**Checkpoint**: End-to-end progression loop is fully functional and persisted offline. ✅
 
 ---
 
@@ -130,9 +130,9 @@
 
 **Purpose**: Visual improvements, complete flow verification, and testing.
 
-- [ ] T023 Add polished transitions and micro-animations to UI screens/popups in `src/components/` and `App.tsx`
-- [ ] T024 Perform final manual verification of the end-to-end user flows as documented in `quickstart.md`
-- [ ] T025 Run quickstart.md validation and verify that all Vitest unit tests pass successfully
+- [X] T023 Add polished transitions and micro-animations to UI screens/popups in `src/components/` and `App.tsx`
+- [X] T024 Perform final manual verification of the end-to-end user flows as documented in `quickstart.md`
+- [X] T025 Run quickstart.md validation and verify that all Vitest unit tests pass successfully
 
 ---
 
