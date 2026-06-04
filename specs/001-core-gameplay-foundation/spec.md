@@ -18,6 +18,12 @@ When a player successfully solves a puzzle, a congratulatory popup should appear
 
 The main goal of this phase is to establish the entire gameplay loop, including puzzle solving, hints, scoring, guesses, puzzle progression, and level progression. By the end of this phase, the game should be fully playable from start to finish without relying on any external services."
 
+## Clarifications
+
+### Session 2026-06-04
+
+- Q: When local saved progress exists, how should the Welcome Screen present option(s) to start or resume the game? → A: Change the main button to "Resume Game" and show a secondary, less prominent option/link to "Start New Game" (resets progress).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Welcome Screen & Game Entry (Priority: P1)
@@ -30,8 +36,10 @@ As a new or returning player, I want to see an engaging and visually appealing w
 
 **Acceptance Scenarios**:
 
-1. **Given** the application has launched, **When** the welcome screen is displayed, **Then** I see the game title, decorative puzzle elements, introductory text, and a "Start Game" button positioned roughly 25% from the bottom of the screen.
-2. **Given** I am on the welcome screen, **When** I press the "Start Game" button, **Then** I am immediately taken to the active puzzle screen.
+1. **Given** the application has launched and no saved progress exists, **When** the welcome screen is displayed, **Then** I see the game title, decorative puzzle elements, introductory text, and a "Start Game" button positioned roughly 25% from the bottom of the screen.
+2. **Given** the application has launched and saved progress exists, **When** the welcome screen is displayed, **Then** the main button displays "Resume Game", and a secondary, less prominent option/link to "Start New Game" (which resets progress) is visible.
+3. **Given** I am on the welcome screen, **When** I press the main button ("Start Game" or "Resume Game"), **Then** I am immediately taken to the active puzzle screen.
+4. **Given** I am on the welcome screen with saved progress, **When** I click the secondary "Start New Game" option, **Then** the saved progress is cleared, and I am taken to the first puzzle of Level 1.
 
 ---
 
@@ -94,7 +102,7 @@ As a player, I want to progress from one puzzle to the next, and see a summary o
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST launch to a welcome screen featuring game title, engaging introductory text, decorative puzzle elements, animations, and a "Start Game" button positioned approximately 25% from the bottom of the screen.
+- **FR-001**: The system MUST launch to a welcome screen featuring game title, engaging introductory text, decorative puzzle elements, animations, and a primary button positioned approximately 25% from the bottom of the screen. If no saved progress exists, the button MUST display "Start Game". If saved progress exists, the button MUST display "Resume Game", and a secondary, less prominent button/option MUST be provided to "Start New Game" (which resets progress).
 - **FR-002**: The system MUST store puzzle data locally within the application, consisting of predefined levels, each containing exactly three puzzles.
 - **FR-003**: Each local puzzle entry MUST contain a question, a single correct answer, and exactly three progressively useful hints.
 - **FR-004**: The puzzle screen MUST display the current level number, current puzzle number (1 to 3), current cumulative score, remaining guesses (starting at 5), and the puzzle question.
