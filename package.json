@@ -8,6 +8,7 @@
     "expo-status-bar": "~56.0.4",
     "react": "19.2.3",
     "react-native": "0.85.3",
+    "react-native-safe-area-context": "~5.7.0",
     "vitest": "^3.2.3"
   },
   "devDependencies": {
@@ -25,8 +26,12 @@
   },
   "vitest": {
     "environment": "node",
-    "include": ["tests/**/*.test.ts"],
-    "exclude": ["node_modules"]
+    "include": [
+      "tests/**/*.test.ts"
+    ],
+    "exclude": [
+      "node_modules"
+    ]
   },
   "private": true
 }

@@ -5,8 +5,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   Animated,
-  SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface LevelCompletionScreenProps {
   levelNumber: number;

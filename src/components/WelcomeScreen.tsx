@@ -5,11 +5,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   Animated,
-  Dimensions,
-  SafeAreaView,
 } from 'react-native';
-
-const { height } = Dimensions.get('window');
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface WelcomeScreenProps {
   hasSavedProgress: boolean;
@@ -96,11 +93,6 @@ export default function WelcomeScreen({
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        {/* Background decorative circles */}
-        <Animated.View style={[styles.decorCircle, styles.decorCircle1, { opacity: decorOpacity }]} />
-        <Animated.View style={[styles.decorCircle, styles.decorCircle2, { opacity: decorOpacity }]} />
-        <Animated.View style={[styles.decorCircle, styles.decorCircle3, { opacity: decorOpacity }]} />
-
         {/* Top section: Title + subtitle */}
         <View style={styles.topSection}>
           {/* Puzzle icon decoration */}
@@ -202,36 +194,6 @@ const styles = StyleSheet.create({
     paddingBottom: 48,
     paddingTop: 24,
     overflow: 'hidden',
-  },
-
-  // Decorative background circles
-  decorCircle: {
-    position: 'absolute',
-    borderRadius: 999,
-  },
-  decorCircle1: {
-    width: 280,
-    height: 280,
-    backgroundColor: '#5E17EB',
-    opacity: 0.12,
-    top: -80,
-    right: -80,
-  },
-  decorCircle2: {
-    width: 200,
-    height: 200,
-    backgroundColor: '#A855F7',
-    opacity: 0.1,
-    bottom: height * 0.35,
-    left: -60,
-  },
-  decorCircle3: {
-    width: 120,
-    height: 120,
-    backgroundColor: '#22D3EE',
-    opacity: 0.08,
-    bottom: height * 0.2,
-    right: -30,
   },
 
   // Top section

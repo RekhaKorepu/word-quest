@@ -7,10 +7,10 @@ import {
   StyleSheet,
   ScrollView,
   Animated,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { GameState } from '../hooks/useGameState';
 import { Puzzle } from '../data/puzzles';
 
@@ -101,43 +101,43 @@ export default function PuzzleScreen({
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
+        {/* Header HUD */}
+        <View style={styles.hud}>
+          <View style={styles.hudItem}>
+            <Text style={styles.hudLabel}>Level</Text>
+            <Text style={styles.hudValue}>{gameState.currentLevelNumber}</Text>
+          </View>
+          <View style={styles.hudDivider} />
+          <View style={styles.hudItem}>
+            <Text style={styles.hudLabel}>Puzzle</Text>
+            <Text style={styles.hudValue}>{gameState.currentPuzzleIndex + 1} / 3</Text>
+          </View>
+          <View style={styles.hudDivider} />
+          <View style={styles.hudItem}>
+            <Text style={styles.hudLabel}>Score</Text>
+            <Text style={[styles.hudValue, styles.scoreValue]}>
+              {gameState.cumulativeScore}
+            </Text>
+          </View>
+          <View style={styles.hudDivider} />
+          <View style={styles.hudItem}>
+            <Text style={styles.hudLabel}>Guesses</Text>
+            <Text
+              style={[
+                styles.hudValue,
+                gameState.remainingGuesses <= 2 ? styles.guessesLow : styles.guessesNormal,
+              ]}
+            >
+              {gameState.remainingGuesses}
+            </Text>
+          </View>
+        </View>
+
         <ScrollView
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Header HUD */}
-          <View style={styles.hud}>
-            <View style={styles.hudItem}>
-              <Text style={styles.hudLabel}>Level</Text>
-              <Text style={styles.hudValue}>{gameState.currentLevelNumber}</Text>
-            </View>
-            <View style={styles.hudDivider} />
-            <View style={styles.hudItem}>
-              <Text style={styles.hudLabel}>Puzzle</Text>
-              <Text style={styles.hudValue}>{gameState.currentPuzzleIndex + 1} / 3</Text>
-            </View>
-            <View style={styles.hudDivider} />
-            <View style={styles.hudItem}>
-              <Text style={styles.hudLabel}>Score</Text>
-              <Text style={[styles.hudValue, styles.scoreValue]}>
-                {gameState.cumulativeScore}
-              </Text>
-            </View>
-            <View style={styles.hudDivider} />
-            <View style={styles.hudItem}>
-              <Text style={styles.hudLabel}>Guesses</Text>
-              <Text
-                style={[
-                  styles.hudValue,
-                  gameState.remainingGuesses <= 2 ? styles.guessesLow : styles.guessesNormal,
-                ]}
-              >
-                {gameState.remainingGuesses}
-              </Text>
-            </View>
-          </View>
-
           {/* Puzzle card */}
           <Animated.View
             style={[
@@ -275,7 +275,12 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#0F0A1E' },
   flex: { flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { padding: 20, paddingBottom: 40 },
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 150,
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
 
   // HUD
   hud: {
@@ -284,7 +289,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingVertical: 12,
     paddingHorizontal: 8,
-    marginBottom: 20,
+    marginHorizontal: 20,
+    marginTop: 10,
+    marginBottom: 10,
     alignItems: 'center',
   },
   hudItem: { flex: 1, alignItems: 'center' },
