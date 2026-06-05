@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { Storage } from '../utils/storage';
 import { Level } from '../data/puzzles';
 import { isAnswerCorrect, isEmptyGuess } from '../utils/validation';
+import { GeneratedPuzzle } from '../data/fallbackPuzzles';
+import { getNextPuzzle, prefetchPuzzles } from '../services/puzzleManager';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -132,14 +134,19 @@ export function resetGame(levels: Level[]): GameState {
 
 // ─── Persistence helpers ─────────────────────────────────────────────────────
 
-async function saveState(state: PlayerState): Promise<void> {
+interface SavedState extends PlayerState {
+  levelPuzzles?: GeneratedPuzzle[];
+}
+
+async function saveState(state: PlayerState, levelPuzzles: GeneratedPuzzle[]): Promise<void> {
   try {
-    const toSave: PlayerState = {
+    const toSave: SavedState = {
       currentLevelNumber: state.currentLevelNumber,
       currentPuzzleIndex: state.currentPuzzleIndex,
       cumulativeScore: state.cumulativeScore,
       remainingGuesses: state.remainingGuesses,
       revealedHintIndices: state.revealedHintIndices,
+      levelPuzzles,
     };
     await Storage.setItem(STORAGE_KEY, JSON.stringify(toSave));
   } catch (e) {
@@ -147,11 +154,11 @@ async function saveState(state: PlayerState): Promise<void> {
   }
 }
 
-async function loadSavedState(): Promise<PlayerState | null> {
+async function loadSavedState(): Promise<SavedState | null> {
   try {
     const raw = await Storage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    return JSON.parse(raw) as PlayerState;
+    return JSON.parse(raw) as SavedState;
   } catch (e) {
     console.warn('[WordQuest] Failed to load state:', e);
     return null;
@@ -172,7 +179,7 @@ export interface UseGameStateReturn {
   gameState: GameState;
   hasSavedProgress: boolean;
   isLoading: boolean;
-  currentPuzzle: Level['puzzles'][number] | null;
+  currentPuzzle: GeneratedPuzzle | null;
   handleSubmitGuess: (guess: string) => void;
   handleRevealHint: () => void;
   handleAdvancePuzzle: () => void;
@@ -180,10 +187,30 @@ export interface UseGameStateReturn {
   handleStartNewGame: () => Promise<void>;
 }
 
+function getStaticLevel1Puzzles(levels: Level[]): GeneratedPuzzle[] {
+  // Collect all static puzzles from predefined levels (first 5 levels of the array)
+  const staticPuzzles = levels
+    .slice(0, 5)
+    .flatMap(level => level.puzzles || []);
+
+  // Shuffle the static puzzles to ensure variety on Level 1
+  const shuffled = [...staticPuzzles].sort(() => Math.random() - 0.5);
+
+  // Serve the first 3 puzzles for Level 1
+  return shuffled.slice(0, 3).map(p => ({
+    id: p.id,
+    question: `[Static] ${p.question}`,
+    answer: p.answer,
+    hints: p.hints,
+    difficulty: 'easy',
+  }));
+}
+
 export function useGameState(levels: Level[]): UseGameStateReturn {
   const [gameState, setGameState] = useState<GameState>(createInitialPlayerState(levels));
   const [hasSavedProgress, setHasSavedProgress] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [levelPuzzles, setLevelPuzzles] = useState<GeneratedPuzzle[]>(() => getStaticLevel1Puzzles(levels));
 
   // Load saved state on mount
   useEffect(() => {
@@ -197,26 +224,64 @@ export function useGameState(levels: Level[]): UseGameStateReturn {
           status: 'playing',
           puzzleScore: 0,
         }));
+        if (saved.levelPuzzles && saved.levelPuzzles.length > 0) {
+          setLevelPuzzles(saved.levelPuzzles);
+        }
       }
       setIsLoading(false);
     })();
   }, []);
 
-  // Auto-save whenever playable state changes
+  // Sync level puzzles whenever level changes
   useEffect(() => {
     if (isLoading) return;
-    saveState(gameState);
+
+    let active = true;
+    const loadLevelPuzzles = async () => {
+      const levelNum = gameState.currentLevelNumber;
+      if (levelNum === 1) {
+        // Level 1: use static default levels
+        if (active) {
+          setLevelPuzzles(getStaticLevel1Puzzles(levels));
+        }
+        // Prefetch level 2 in the background
+        prefetchPuzzles(2).catch(console.error);
+      } else {
+        if (levelPuzzles.length === 0 || gameState.currentPuzzleIndex === 0) {
+          const p1 = await getNextPuzzle(levelNum);
+          const p2 = await getNextPuzzle(levelNum);
+          const p3 = await getNextPuzzle(levelNum);
+          if (active) {
+            setLevelPuzzles([p1, p2, p3]);
+          }
+        }
+        // Prefetch next level in background
+        prefetchPuzzles(levelNum + 1).catch(console.error);
+      }
+    };
+
+    loadLevelPuzzles();
+
+    return () => {
+      active = false;
+    };
+  }, [gameState.currentLevelNumber, isLoading]);
+
+  // Auto-save whenever playable state or puzzles change
+  useEffect(() => {
+    if (isLoading) return;
+    saveState(gameState, levelPuzzles);
   }, [
     gameState.currentLevelNumber,
     gameState.currentPuzzleIndex,
     gameState.cumulativeScore,
     gameState.remainingGuesses,
     gameState.revealedHintIndices,
+    levelPuzzles,
     isLoading,
   ]);
 
-  const currentLevel = levels.find((l) => l.levelNumber === gameState.currentLevelNumber);
-  const currentPuzzle = currentLevel?.puzzles[gameState.currentPuzzleIndex] ?? null;
+  const currentPuzzle = levelPuzzles[gameState.currentPuzzleIndex] ?? null;
 
   const handleSubmitGuess = useCallback(
     (guess: string) => {
@@ -241,6 +306,7 @@ export function useGameState(levels: Level[]): UseGameStateReturn {
   const handleStartNewGame = useCallback(async () => {
     await clearSavedState();
     setHasSavedProgress(false);
+    setLevelPuzzles(getStaticLevel1Puzzles(levels));
     setGameState(createInitialPlayerState(levels));
   }, [levels]);
 
