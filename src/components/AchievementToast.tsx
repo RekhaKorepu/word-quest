@@ -14,6 +14,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { AchievementDefinition } from '../services/achievementEvaluator';
+import { playSound } from '../services/audioManager';
 
 interface AchievementToastProps {
   achievement: AchievementDefinition | null;
@@ -28,6 +29,8 @@ export default function AchievementToast({ achievement, onDismiss }: Achievement
 
   useEffect(() => {
     if (!achievement) return;
+
+    playSound('achievement');
 
     // Slide in
     Animated.parallel([

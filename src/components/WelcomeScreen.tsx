@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,8 @@ import {
   Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { playSound, setMuted } from '../services/audioManager';
+import { loadAudioMuted } from '../utils/profileStorage';
 
 interface WelcomeScreenProps {
   hasSavedProgress: boolean;
@@ -25,6 +27,44 @@ export default function WelcomeScreen({
   onShowDailyChallenge,
   streakCount,
 }: WelcomeScreenProps) {
+  const [isMutedState, setIsMutedState] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const muted = await loadAudioMuted();
+      setIsMutedState(muted);
+    })();
+  }, []);
+
+  const handleMuteToggle = async () => {
+    const newMuted = !isMutedState;
+    setIsMutedState(newMuted);
+    await setMuted(newMuted);
+    if (!newMuted) {
+      playSound('button_click');
+    }
+  };
+
+  const handleStartGame = () => {
+    playSound('button_click');
+    onStartGame();
+  };
+
+  const handleNewGame = () => {
+    playSound('button_click');
+    onNewGame();
+  };
+
+  const handleShowStats = () => {
+    playSound('button_click');
+    onShowStats();
+  };
+
+  const handleShowDailyChallenge = () => {
+    playSound('button_click');
+    onShowDailyChallenge();
+  };
+
   // Animations
   const titleOpacity = useRef(new Animated.Value(0)).current;
   const titleTranslateY = useRef(new Animated.Value(-30)).current;
@@ -99,6 +139,18 @@ export default function WelcomeScreen({
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
+        {/* Mute settings toggle at top right */}
+        <View style={styles.headerMuteRow}>
+          <TouchableOpacity
+            testID="mute-toggle-button"
+            style={styles.muteButton}
+            onPress={handleMuteToggle}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.muteButtonText}>{isMutedState ? '🔇' : '🔊'}</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Top section: Title + subtitle */}
         <View style={styles.topSection}>
           {/* Puzzle icon decoration */}
@@ -163,7 +215,7 @@ export default function WelcomeScreen({
           <TouchableOpacity
             testID="primary-action-button"
             style={styles.primaryButton}
-            onPress={onStartGame}
+            onPress={handleStartGame}
             activeOpacity={0.85}
           >
             <Text style={styles.primaryButtonText}>
@@ -175,7 +227,7 @@ export default function WelcomeScreen({
             <TouchableOpacity
               testID="new-game-button"
               style={styles.secondaryButton}
-              onPress={onNewGame}
+              onPress={handleNewGame}
               activeOpacity={0.7}
             >
               <Text style={styles.secondaryButtonText}>↺  Start New Game</Text>
@@ -187,7 +239,7 @@ export default function WelcomeScreen({
             <TouchableOpacity
               testID="daily-challenge-button"
               style={styles.featureButton}
-              onPress={onShowDailyChallenge}
+              onPress={handleShowDailyChallenge}
               activeOpacity={0.75}
             >
               <Text style={styles.featureButtonIcon}>⚡</Text>
@@ -196,7 +248,7 @@ export default function WelcomeScreen({
             <TouchableOpacity
               testID="stats-button"
               style={styles.featureButton}
-              onPress={onShowStats}
+              onPress={handleShowStats}
               activeOpacity={0.75}
             >
               <Text style={styles.featureButtonIcon}>📊</Text>
@@ -369,5 +421,21 @@ const styles = StyleSheet.create({
     color: '#A78BFA',
     fontSize: 13,
     fontWeight: '700',
+  },
+  headerMuteRow: {
+    position: 'absolute',
+    top: 10,
+    right: 20,
+    zIndex: 10,
+  },
+  muteButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 12,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  muteButtonText: {
+    fontSize: 18,
   },
 });

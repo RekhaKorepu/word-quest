@@ -9,10 +9,12 @@ import {
 } from '../src/services/puzzleManager';
 import * as geminiService from '../src/services/gemini';
 import { FALLBACK_PUZZLES } from '../src/data/fallbackPuzzles';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 describe('Fallback Handling & Cooldown', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     clearQueue();
+    await AsyncStorage.clear();
     setCooldownUntil(0);
     vi.useFakeTimers();
     vi.stubEnv('EXPO_PUBLIC_GEMINI_API_KEY', 'test-api-key');

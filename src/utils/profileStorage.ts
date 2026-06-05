@@ -10,6 +10,7 @@
  */
 
 import { Storage } from './storage';
+import { GeneratedPuzzle } from '../data/fallbackPuzzles';
 
 // ─── Data Model Types ─────────────────────────────────────────────────────────
 
@@ -47,6 +48,8 @@ export interface DailyChallengeState {
 
 const PROFILE_KEY = '@wordquest_player_profile';
 const DAILY_KEY = '@wordquest_daily_challenge';
+const AUDIO_MUTED_KEY = '@wordquest_audio_settings';
+const OFFLINE_CACHE_KEY = '@wordquest_offline_cache';
 
 // ─── Default Values ───────────────────────────────────────────────────────────
 
@@ -115,5 +118,48 @@ export async function saveDailyChallenge(state: DailyChallengeState): Promise<vo
     await Storage.setItem(DAILY_KEY, JSON.stringify(state));
   } catch (e) {
     console.warn('[WordQuest] Failed to save daily challenge:', e);
+  }
+}
+
+// ─── Audio Settings CRUD ──────────────────────────────────────────────────────
+
+export async function loadAudioMuted(): Promise<boolean> {
+  try {
+    const raw = await Storage.getItem(AUDIO_MUTED_KEY);
+    return raw === 'true';
+  } catch {
+    return false;
+  }
+}
+
+export async function saveAudioMuted(isMuted: boolean): Promise<void> {
+  try {
+    await Storage.setItem(AUDIO_MUTED_KEY, isMuted ? 'true' : 'false');
+  } catch (e) {
+    console.warn('[WordQuest] Failed to save audio settings:', e);
+  }
+}
+
+// ─── Offline Puzzle Cache CRUD ────────────────────────────────────────────────
+
+export async function loadOfflinePuzzleCache(): Promise<GeneratedPuzzle[]> {
+  try {
+    const raw = await Storage.getItem(OFFLINE_CACHE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) return parsed as GeneratedPuzzle[];
+    return [];
+  } catch {
+    return [];
+  }
+}
+
+export async function saveOfflinePuzzleCache(puzzles: GeneratedPuzzle[]): Promise<void> {
+  try {
+    // Keep a maximum of 5 puzzles to prevent excessive local storage consumption
+    const capped = puzzles.slice(0, 5);
+    await Storage.setItem(OFFLINE_CACHE_KEY, JSON.stringify(capped));
+  } catch (e) {
+    console.warn('[WordQuest] Failed to save offline cache:', e);
   }
 }

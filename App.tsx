@@ -18,6 +18,7 @@ import ProfileHeader from './src/components/ProfileHeader';
 import AchievementToast from './src/components/AchievementToast';
 import StatsDashboard from './src/components/StatsDashboard';
 import DailyChallengeModal from './src/components/DailyChallengeModal';
+import ErrorBoundary from './src/components/ErrorBoundary';
 
 type AppScreen = 'welcome' | 'puzzle' | 'levelComplete' | 'gameComplete';
 
@@ -37,7 +38,7 @@ const VIRTUAL_LEVELS = [
 ];
 const MAX_ENDLESS_LEVELS = 9999;
 
-export default function App() {
+function AppContent() {
   const {
     gameState,
     hasSavedProgress,
@@ -346,6 +347,14 @@ export default function App() {
         streakCount={profile.streakCount}
       />
     </>
+  );
+}
+
+export default function App() {
+  return (
+    <ErrorBoundary>
+      <AppContent />
+    </ErrorBoundary>
   );
 }
 

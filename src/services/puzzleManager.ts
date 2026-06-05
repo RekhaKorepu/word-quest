@@ -1,5 +1,6 @@
 import { GeneratedPuzzle, FALLBACK_PUZZLES } from '../data/fallbackPuzzles';
 import { generateGeminiPuzzle } from './gemini';
+import { loadOfflinePuzzleCache, saveOfflinePuzzleCache } from '../utils/profileStorage';
 
 // In-memory prefetch queue state
 let puzzleQueue: GeneratedPuzzle[] = [];
@@ -8,6 +9,45 @@ let consecutiveFailures = 0;
 let usedPuzzleIds: string[] = [];
 let recentAnswers: string[] = [];
 let recentQuestions: string[] = [];
+let cacheLoaded = false;
+let isPrefetching = false;
+
+async function ensureCacheLoaded(): Promise<void> {
+  if (!cacheLoaded) {
+    cacheLoaded = true;
+    try {
+      const cached = await loadOfflinePuzzleCache();
+      if (cached && cached.length > 0) {
+        // Only load into queue if queue is currently empty
+        if (puzzleQueue.length === 0) {
+          puzzleQueue = [...cached];
+        }
+      }
+    } catch (e) {
+      console.warn('[PuzzleManager] Failed to load offline cache:', e);
+    }
+  }
+}
+
+async function popPuzzleFromOfflineCache(difficulty: 'easy' | 'medium'): Promise<GeneratedPuzzle | null> {
+  try {
+    const cached = await loadOfflinePuzzleCache();
+    const queueIds = new Set(puzzleQueue.map((p) => p.id));
+    // Try to find matching difficulty first
+    let idx = cached.findIndex((p) => p.difficulty === difficulty && !queueIds.has(p.id));
+    if (idx === -1) {
+      // If not found, try to find any cached puzzle not in queue
+      idx = cached.findIndex((p) => !queueIds.has(p.id));
+    }
+    if (idx !== -1) {
+      const puzzle = cached[idx];
+      return puzzle;
+    }
+  } catch (e) {
+    console.warn('[PuzzleManager] Failed to pop from offline cache:', e);
+  }
+  return null;
+}
 
 // INAPPROPRIATE_TERMS for validation
 const INAPPROPRIATE_TERMS = [
@@ -92,6 +132,10 @@ export function clearQueue(): void {
   usedPuzzleIds = [];
   recentAnswers = [];
   recentQuestions = [];
+  cacheLoaded = false;
+  cooldownUntil = 0;
+  consecutiveFailures = 0;
+  isPrefetching = false;
 }
 
 /**
@@ -213,83 +257,108 @@ async function fetchPuzzleWithTimeout(
  * Prefetches puzzles to fill the queue to 3 items.
  */
 export async function prefetchPuzzles(levelNumber: number): Promise<void> {
-  while (puzzleQueue.length < 3) {
-    const difficulty = getDifficultyForLevel(levelNumber);
+  if (isPrefetching) return;
+  isPrefetching = true;
+  try {
+    await ensureCacheLoaded();
+    while (puzzleQueue.length < 3) {
+      const difficulty = getDifficultyForLevel(levelNumber);
 
-    // 1. If cooldown is active, bypass API and use fallback
-    if (Date.now() < cooldownUntil) {
-      puzzleQueue.push(getFallbackPuzzleWithTag(difficulty));
-      continue;
-    }
-
-    // 2. Query the API
-    try {
-      const puzzle = await fetchPuzzleWithTimeout(difficulty, 15000, recentAnswers, recentQuestions);
-
-      const isValid = validatePuzzle(puzzle);
-
-      let isDuplicate = false;
-      if (isValid && puzzle.id !== 'test-id') {
-        const normQ = puzzle.question.trim().toLowerCase();
-        const normA = puzzle.answer.trim().toLowerCase();
-
-        // 1. Check recent history arrays
-        const isRecentQ = recentQuestions.includes(normQ);
-        const isRecentA = recentAnswers.includes(normA);
-
-        // 2. Check current queue items (stripping [AI] and [Fallback] prefix tags)
-        const isQueueQ = puzzleQueue.some(p => {
-          const cleanQ = p.question.replace(/^\[AI\]\s*/, '').replace(/^\[Fallback\]\s*/, '').trim().toLowerCase();
-          return cleanQ === normQ;
-        });
-        const isQueueA = puzzleQueue.some(p => p.answer.trim().toLowerCase() === normA);
-
-        if (isRecentQ || isRecentA || isQueueQ || isQueueA) {
-          isDuplicate = true;
+      // 1. If cooldown is active, bypass API and use fallback
+      if (Date.now() < cooldownUntil) {
+        const cachedPuzzle = await popPuzzleFromOfflineCache(difficulty);
+        if (cachedPuzzle) {
+          puzzleQueue.push(cachedPuzzle);
+        } else {
+          puzzleQueue.push(getFallbackPuzzleWithTag(difficulty));
         }
+        continue;
       }
 
-      if (isValid && !isDuplicate) {
-        const puzzleWithId: GeneratedPuzzle = {
-          id: puzzle.id || `gen-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-          question: puzzle.question,
-          answer: puzzle.answer,
-          hints: puzzle.hints as [string, string, string],
-          difficulty: puzzle.difficulty,
-        };
-        puzzleQueue.push(puzzleWithId);
-        consecutiveFailures = 0; // Reset failures on success
+      // 2. Query the API
+      try {
+        const puzzle = await fetchPuzzleWithTimeout(difficulty, 15000, recentAnswers, recentQuestions);
 
-        // Track recent answers to avoid repetitions from Gemini
-        recentAnswers.push(puzzle.answer.toLowerCase());
-        if (recentAnswers.length > 10) {
-          recentAnswers.shift();
+        const isValid = validatePuzzle(puzzle);
+
+        let isDuplicate = false;
+        if (isValid && puzzle.id !== 'test-id') {
+          const normQ = puzzle.question.trim().toLowerCase();
+          const normA = puzzle.answer.trim().toLowerCase();
+
+          // 1. Check recent history arrays
+          const isRecentQ = recentQuestions.includes(normQ);
+          const isRecentA = recentAnswers.includes(normA);
+
+          // 2. Check current queue items (stripping [AI] and [Fallback] prefix tags)
+          const isQueueQ = puzzleQueue.some(p => {
+            const cleanQ = p.question.replace(/^\[AI\]\s*/, '').replace(/^\[Fallback\]\s*/, '').trim().toLowerCase();
+            return cleanQ === normQ;
+          });
+          const isQueueA = puzzleQueue.some(p => p.answer.trim().toLowerCase() === normA);
+
+          if (isRecentQ || isRecentA || isQueueQ || isQueueA) {
+            isDuplicate = true;
+          }
         }
-        // Track recent questions to avoid duplicate questions
-        recentQuestions.push(puzzle.question.trim().toLowerCase());
-        if (recentQuestions.length > 10) {
-          recentQuestions.shift();
+
+        if (isValid && !isDuplicate) {
+          const puzzleWithId: GeneratedPuzzle = {
+            id: puzzle.id || `gen-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+            question: puzzle.question,
+            answer: puzzle.answer,
+            hints: puzzle.hints as [string, string, string],
+            difficulty: puzzle.difficulty,
+          };
+          puzzleQueue.push(puzzleWithId);
+          consecutiveFailures = 0; // Reset failures on success
+
+          // Track recent answers to avoid repetitions from Gemini
+          recentAnswers.push(puzzle.answer.toLowerCase());
+          if (recentAnswers.length > 10) {
+            recentAnswers.shift();
+          }
+          // Track recent questions to avoid duplicate questions
+          recentQuestions.push(puzzle.question.trim().toLowerCase());
+          if (recentQuestions.length > 10) {
+            recentQuestions.shift();
+          }
+
+          // Save to AsyncStorage!
+          await saveOfflinePuzzleCache(puzzleQueue);
+        } else {
+          // Discard invalid puzzle and increment consecutive failures
+          consecutiveFailures++;
+          if (consecutiveFailures >= 3) {
+            cooldownUntil = Date.now() + 60000;
+            consecutiveFailures = 0;
+            const cachedPuzzle = await popPuzzleFromOfflineCache(difficulty);
+            if (cachedPuzzle) {
+              puzzleQueue.push(cachedPuzzle);
+            } else {
+              puzzleQueue.push(getFallbackPuzzleWithTag(difficulty));
+            }
+          }
         }
-      } else {
-        // Discard invalid puzzle and increment consecutive failures
+      } catch (err: any) {
         consecutiveFailures++;
-        if (consecutiveFailures >= 3) {
-          cooldownUntil = Date.now() + 60000;
-          consecutiveFailures = 0;
+
+        // Trigger cooldown after a failure
+        // (either single network error, or 3 consecutive validation/api failures)
+        // "The system MUST implement a request cooldown mechanism of 60 seconds following a Gemini API failure."
+        cooldownUntil = Date.now() + 60000;
+        consecutiveFailures = 0;
+
+        const cachedPuzzle = await popPuzzleFromOfflineCache(difficulty);
+        if (cachedPuzzle) {
+          puzzleQueue.push(cachedPuzzle);
+        } else {
           puzzleQueue.push(getFallbackPuzzleWithTag(difficulty));
         }
       }
-    } catch (err: any) {
-      consecutiveFailures++;
-
-      // Trigger cooldown after a failure
-      // (either single network error, or 3 consecutive validation/api failures)
-      // "The system MUST implement a request cooldown mechanism of 60 seconds following a Gemini API failure."
-      cooldownUntil = Date.now() + 60000;
-      consecutiveFailures = 0;
-
-      puzzleQueue.push(getFallbackPuzzleWithTag(difficulty));
     }
+  } finally {
+    isPrefetching = false;
   }
 }
 
@@ -297,7 +366,9 @@ export async function prefetchPuzzles(levelNumber: number): Promise<void> {
  * Initializes the queue with 3 puzzles.
  */
 export async function initializeQueue(levelNumber: number): Promise<void> {
+  await ensureCacheLoaded();
   clearQueue();
+  await saveOfflinePuzzleCache([]);
   await prefetchPuzzles(levelNumber);
 }
 
@@ -305,7 +376,9 @@ export async function initializeQueue(levelNumber: number): Promise<void> {
  * Dequeues the next puzzle and triggers background prefetching to replenish the queue.
  */
 export async function getNextPuzzle(levelNumber: number): Promise<GeneratedPuzzle> {
+  await ensureCacheLoaded();
   let puzzle = dequeue();
+  await saveOfflinePuzzleCache(puzzleQueue);
 
   if (!puzzle) {
     // If queue is empty, grab a fallback immediately to avoid blocking

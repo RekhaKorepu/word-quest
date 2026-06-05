@@ -4,6 +4,7 @@ import { Level } from '../data/puzzles';
 import { isAnswerCorrect, isEmptyGuess } from '../utils/validation';
 import { GeneratedPuzzle } from '../data/fallbackPuzzles';
 import { getNextPuzzle, prefetchPuzzles } from '../services/puzzleManager';
+import { playSound } from '../services/audioManager';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -248,6 +249,24 @@ export function useGameState(levels: Level[]): UseGameStateReturn {
       setIsLoading(false);
     })();
   }, []);
+  // Trigger sound effects on state transitions
+  useEffect(() => {
+    if (isLoading) return;
+    if (gameState.status === 'solved') {
+      playSound('puzzle_solve');
+    } else if (gameState.status === 'failed') {
+      playSound('puzzle_fail');
+    } else if (gameState.status === 'levelComplete') {
+      playSound('level_complete');
+    }
+  }, [gameState.status, isLoading]);
+
+  useEffect(() => {
+    if (isLoading) return;
+    if (gameState.revealedHintIndices.length > 0) {
+      playSound('hint_reveal');
+    }
+  }, [gameState.revealedHintIndices.length, isLoading]);
 
   // Sync level puzzles whenever level changes
   useEffect(() => {

@@ -22,6 +22,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GameStatsSnapshot } from '../services/profileManager';
+import { playSound } from '../services/audioManager';
 
 interface StatsDashboardProps {
   visible: boolean;
@@ -62,16 +63,21 @@ export default function StatsDashboard({ visible, onClose, stats }: StatsDashboa
     }
   }, [visible]);
 
+  const handleClose = () => {
+    playSound('button_click');
+    onClose();
+  };
+
   return (
     <Modal
       visible={visible}
       transparent
       animationType="none"
-      onRequestClose={onClose}
+      onRequestClose={handleClose}
       testID="stats-dashboard-modal"
     >
       <View style={styles.overlay}>
-        <TouchableOpacity style={styles.backdrop} onPress={onClose} activeOpacity={1} />
+        <TouchableOpacity style={styles.backdrop} onPress={handleClose} activeOpacity={1} />
         <Animated.View
           style={[styles.card, { opacity: opacityAnim, transform: [{ scale: scaleAnim }] }]}
         >
@@ -80,7 +86,7 @@ export default function StatsDashboard({ visible, onClose, stats }: StatsDashboa
               <Text style={styles.headerTitle}>📊 Statistics</Text>
               <TouchableOpacity
                 testID="stats-close-button"
-                onPress={onClose}
+                onPress={handleClose}
                 style={styles.closeButton}
               >
                 <Text style={styles.closeIcon}>✕</Text>

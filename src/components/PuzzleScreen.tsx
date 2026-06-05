@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { GameState } from '../hooks/useGameState';
 import { Puzzle } from '../data/puzzles';
 import RevealAnswerControl from './RevealAnswerControl';
+import { playSound } from '../services/audioManager';
 
 interface PuzzleScreenProps {
   gameState: GameState;
@@ -86,6 +87,7 @@ export default function PuzzleScreen({
 
   const handleSubmit = () => {
     if (!inputValue.trim() || isFinished) return;
+    playSound('button_click');
     const prevGuesses = gameState.remainingGuesses;
     onSubmitGuess(inputValue);
     setInputValue('');
@@ -98,6 +100,7 @@ export default function PuzzleScreen({
 
   const handleRevealHint = () => {
     if (gameState.revealedHintIndices.length >= 3 || isFinished) return;
+    playSound('button_click');
     onRevealHint();
   };
 
@@ -208,7 +211,10 @@ export default function PuzzleScreen({
                   </TouchableOpacity>
                   {/* Reveal Answer button adjacent to Reveal Hint (FR-007) */}
                   <RevealAnswerControl
-                    onReveal={onRevealAnswer}
+                    onReveal={() => {
+                      playSound('button_click');
+                      onRevealAnswer();
+                    }}
                     revealed={isRevealed}
                     correctAnswer={currentPuzzle.answer}
                     onNextPuzzle={onAdvancePuzzle}
@@ -283,7 +289,10 @@ export default function PuzzleScreen({
             <TouchableOpacity
               testID="proceed-button"
               style={styles.proceedButton}
-              onPress={onAdvancePuzzle}
+              onPress={() => {
+                playSound('button_click');
+                onAdvancePuzzle();
+              }}
             >
               <Text style={styles.proceedButtonText}>
                 {gameState.currentPuzzleIndex < 2

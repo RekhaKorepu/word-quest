@@ -18,8 +18,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Install `expo-av` audio playback dependency in `package.json`
-- [ ] T002 [P] Bundle lightweight audio MP3 assets under `assets/sounds/`
+- [x] T001 Install `expo-av` audio playback dependency in `package.json`
+- [x] T002 [P] Bundle lightweight audio MP3 assets under `assets/sounds/`
 
 ---
 
@@ -29,8 +29,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Implement sound settings storage getters/seters in `src/utils/profileStorage.ts`
-- [ ] T004 Implement offline prefetch cache storage serialization/deserialization helpers in `src/utils/profileStorage.ts`
+- [x] T003 Implement sound settings storage getters/seters in `src/utils/profileStorage.ts`
+- [x] T004 Implement offline prefetch cache storage serialization/deserialization helpers in `src/utils/profileStorage.ts`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -44,16 +44,16 @@
 
 ### Tests for User Story 1
 
-- [ ] T005 [P] [US1] Create unit tests for audio mute state persistence and playback settings in `tests/services/audio.test.ts`
+- [x] T005 [P] [US1] Create unit tests for audio mute state persistence and playback settings in `tests/services/audio.test.ts`
 
 ### Implementation for User Story 1
 
-- [ ] T006 [US1] Create `src/services/audioManager.ts` to handle asset preloading, playback controls, and volume/mute settings
-- [ ] T007 [US1] Integrate general UI click sounds in `src/components/WelcomeScreen.tsx` and `src/components/PuzzleScreen.tsx`
-- [ ] T008 [US1] Integrate correctness/failure audio cues on guess submissions in `src/hooks/useGameState.ts` and `src/components/PuzzleScreen.tsx`
-- [ ] T009 [US1] Integrate hint reveal sound in `src/hooks/useGameState.ts` and level completion success theme in `src/components/LevelCompletionScreen.tsx`
-- [ ] T010 [US1] Integrate achievement unlock sound effect in `src/components/AchievementToast.tsx`
-- [ ] T011 [US1] Implement a mute/unmute toggle speaker control on the `src/components/WelcomeScreen.tsx`
+- [x] T006 [US1] Create `src/services/audioManager.ts` to handle asset preloading, playback controls, and volume/mute settings
+- [x] T007 [US1] Integrate general UI click sounds in `src/components/WelcomeScreen.tsx` and `src/components/PuzzleScreen.tsx`
+- [x] T008 [US1] Integrate correctness/failure audio cues on guess submissions in `src/hooks/useGameState.ts` and `src/components/PuzzleScreen.tsx`
+- [x] T009 [US1] Integrate hint reveal sound in `src/hooks/useGameState.ts` and level completion success theme in `src/components/LevelCompletionScreen.tsx`
+- [x] T010 [US1] Integrate achievement unlock sound effect in `src/components/AchievementToast.tsx`
+- [x] T011 [US1] Implement a mute/unmute toggle speaker control on the `src/components/WelcomeScreen.tsx`
 
 **Checkpoint**: User Story 1 is fully functional and testable independently.
 
@@ -67,12 +67,12 @@
 
 ### Tests for User Story 2
 
-- [ ] T012 [P] [US2] Create unit tests for offline cache preloading, queue retrieval, and network offline fallback in `tests/services/puzzleManagerOffline.test.ts`
+- [x] T012 [P] [US2] Create unit tests for offline cache preloading, queue retrieval, and network offline fallback in `tests/services/puzzleManagerOffline.test.ts`
 
 ### Implementation for User Story 2
 
-- [ ] T013 [US2] Update `src/services/puzzleManager.ts` to initialize the prefetch queue from local cache on startup and save the queue back to AsyncStorage on every successful prefetch
-- [ ] T014 [US2] Update prefetch fallback handlers in `src/services/puzzleManager.ts` to retrieve puzzles from the local offline cache first before loading static fallback puzzles
+- [x] T013 [US2] Update `src/services/puzzleManager.ts` to initialize the prefetch queue from local cache on startup and save the queue back to AsyncStorage on every successful prefetch
+- [x] T014 [US2] Update prefetch fallback handlers in `src/services/puzzleManager.ts` to retrieve puzzles from the local offline cache first before loading static fallback puzzles
 
 **Checkpoint**: User Story 2 is fully functional and testable independently.
 
@@ -86,8 +86,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T015 [US3] Add the splash configuration block to `app.json` pointing to `./assets/splash.png`
-- [ ] T016 [US3] Create and save a custom 1242x2436 pixel splash screen image at `assets/splash.png` using the image generation tool
+- [x] T015 [US3] Add the splash configuration block to `app.json` pointing to `./assets/splash.png`
+- [x] T016 [US3] Create and save a custom 1242x2436 pixel splash screen image at `assets/splash.png` using the image generation tool
 
 **Checkpoint**: User Story 3 is fully functional and testable independently.
 
@@ -101,8 +101,8 @@
 
 ### Implementation for User Story 4
 
-- [ ] T017 [US4] Optimize queue checks in `src/services/puzzleManager.ts` to prevent duplicate prefetch calls when a fetch is already in progress
-- [ ] T018 [US4] Add a root-level Error Boundary wrapper in `App.tsx` to handle unexpected UI crashes gracefully and offer a soft reload option
+- [x] T017 [US4] Optimize queue checks in `src/services/puzzleManager.ts` to prevent duplicate prefetch calls when a fetch is already in progress
+- [x] T018 [US4] Add a root-level Error Boundary wrapper in `App.tsx` to handle unexpected UI crashes gracefully and offer a soft reload option
 
 ---
 
@@ -110,8 +110,8 @@
 
 **Purpose**: Performance checks, cleanup, and overall verification
 
-- [ ] T019 [P] Update documentation files and run quickstart validations
-- [ ] T020 Run entire test suite `npm test` and verify all 135+ tests pass
+- [x] T019 [P] Update documentation files and run quickstart validations
+- [x] T020 Run entire test suite `npm test` and verify all 135+ tests pass
 
 ---
 
