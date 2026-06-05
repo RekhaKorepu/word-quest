@@ -216,7 +216,7 @@ function getStaticLevel1Puzzles(levels: Level[]): GeneratedPuzzle[] {
   // Serve the first 3 puzzles for Level 1
   return shuffled.slice(0, 3).map(p => ({
     id: p.id,
-    question: `[Static] ${p.question}`,
+    question: p.question,
     answer: p.answer,
     hints: p.hints,
     difficulty: 'easy',
