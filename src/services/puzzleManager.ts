@@ -188,7 +188,7 @@ export function getFallbackPuzzle(difficulty: 'easy' | 'medium', excludeQueue: G
  */
 function getFallbackPuzzleWithTag(difficulty: 'easy' | 'medium'): GeneratedPuzzle {
   const fb = getFallbackPuzzle(difficulty, puzzleQueue);
-  return { ...fb, question: `[Fallback] ${fb.question}` };
+  return { ...fb, question: fb.question };
 }
 
 /**
@@ -252,7 +252,7 @@ export async function prefetchPuzzles(levelNumber: number): Promise<void> {
       if (isValid && !isDuplicate) {
         const puzzleWithId: GeneratedPuzzle = {
           id: puzzle.id || `gen-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-          question: `[AI] ${puzzle.question}`,
+          question: puzzle.question,
           answer: puzzle.answer,
           hints: puzzle.hints as [string, string, string],
           difficulty: puzzle.difficulty,
@@ -357,7 +357,7 @@ export async function getDailyChallengePuzzle(): Promise<{
   const idx = dateSeedIndex(today) % easyPuzzles.length;
   const puzzle: GeneratedPuzzle = {
     ...easyPuzzles[idx],
-    question: `[Daily] ${easyPuzzles[idx].question}`,
+    question: easyPuzzles[idx].question,
   };
 
   return { puzzle, alreadyCompleted };

@@ -100,11 +100,9 @@ describe('Fallback Handling & Cooldown', () => {
 });
 
 function verifyFallbackPuzzle(puzzle: any) {
-  expect(puzzle.question.startsWith('[Fallback] ')).toBe(true);
-  const rawQuestion = puzzle.question.replace('[Fallback] ', '');
   const matchingRaw = FALLBACK_PUZZLES.find((p) => p.id === puzzle.id);
   expect(matchingRaw).toBeDefined();
-  expect(matchingRaw?.question).toBe(rawQuestion);
+  expect(matchingRaw?.question).toBe(puzzle.question);
   expect(matchingRaw?.answer).toBe(puzzle.answer);
   expect(matchingRaw?.difficulty).toBe(puzzle.difficulty);
 }

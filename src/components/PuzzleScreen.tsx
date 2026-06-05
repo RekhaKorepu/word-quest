@@ -381,9 +381,9 @@ const styles = StyleSheet.create({
   // Hints section
   hintsSection: { marginBottom: 20 },
   hintsSectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: 8,
     marginBottom: 12,
   },
   hintsSectionTitle: { color: '#DDD6FE', fontSize: 15, fontWeight: '700' },
@@ -392,7 +392,6 @@ const styles = StyleSheet.create({
     gap: 8,
     alignItems: 'center',
     flexWrap: 'wrap',
-    justifyContent: 'flex-end',
   },
   revealHintButton: {
     backgroundColor: 'rgba(124,58,237,0.25)',
