@@ -165,7 +165,8 @@ describe('scoring with hints', () => {
 
 describe('advancePuzzle', () => {
   it('advances to next puzzle index within a level', () => {
-    const state = freshState();
+    // advancePuzzle requires a terminal status (solved/failed/revealed) to proceed
+    const state = { ...freshState(), status: 'solved' as const };
     const next = advancePuzzle(state);
     expect(next.currentPuzzleIndex).toBe(1);
     expect(next.remainingGuesses).toBe(5);
@@ -174,7 +175,7 @@ describe('advancePuzzle', () => {
   });
 
   it('transitions to levelComplete when advancing past the last puzzle', () => {
-    let state = freshState();
+    let state = { ...freshState(), status: 'solved' as const };
     state = { ...state, currentPuzzleIndex: 2 };
     const next = advancePuzzle(state);
     expect(next.status).toBe('levelComplete');

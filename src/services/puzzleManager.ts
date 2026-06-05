@@ -123,18 +123,20 @@ export function setCooldownUntil(time: number): void {
 }
 
 /**
- * Returns the calculated difficulty class for a level.
- * - Level 1 & 2: 100% Easy.
- * - Level 3 & 4: 90% Easy / 10% Medium.
- * - Level 5+: 80% Easy / 20% Medium.
+ * Returns the calculated difficulty class for a level (FR-010).
+ *
+ * Scaling curve (linear interpolation):
+ *  - Levels 1–4:  100% Easy (0% medium)
+ *  - Level 5:     80% Easy / 20% Medium
+ *  - Level 6–14:  medium ratio increases by 2% per level
+ *  - Level 15+:   60% Easy / 40% Medium (capped)
+ *
+ * Formula: mediumPct = min(40, 20 + 2 * (level - 5)) for level >= 5
  */
 export function getDifficultyForLevel(level: number): 'easy' | 'medium' {
-  if (level <= 2) return 'easy';
-  const rand = Math.random();
-  if (level <= 4) {
-    return rand < 0.1 ? 'medium' : 'easy';
-  }
-  return rand < 0.2 ? 'medium' : 'easy';
+  if (level <= 4) return 'easy';
+  const mediumPct = Math.min(40, 20 + 2 * (level - 5)) / 100;
+  return Math.random() < mediumPct ? 'medium' : 'easy';
 }
 
 /**
@@ -317,4 +319,46 @@ export async function getNextPuzzle(levelNumber: number): Promise<GeneratedPuzzl
   });
 
   return puzzle;
+}
+
+// ─── Daily Challenge (FR-008) ─────────────────────────────────────────────────
+
+/**
+ * Derives a deterministic date-based seed key from a YYYY-MM-DD string.
+ * Used to pick a stable daily puzzle from the fallback pool.
+ */
+function dateSeedIndex(dateString: string): number {
+  let hash = 0;
+  for (let i = 0; i < dateString.length; i++) {
+    hash = (hash * 31 + dateString.charCodeAt(i)) >>> 0;
+  }
+  return hash;
+}
+
+/**
+ * Returns today's daily challenge puzzle.
+ * - Uses a date-seeded fallback puzzle for offline-first reliability.
+ * - Checks DailyChallengeState to determine if already completed.
+ */
+export async function getDailyChallengePuzzle(): Promise<{
+  puzzle: GeneratedPuzzle;
+  alreadyCompleted: boolean;
+}> {
+  // Import here to avoid circular dependency
+  const { loadDailyChallenge } = await import('../utils/profileStorage');
+  const { getTodayDateString } = await import('./profileManager');
+
+  const today = getTodayDateString();
+  const dailyState = await loadDailyChallenge();
+  const alreadyCompleted = dailyState?.dateString === today && dailyState?.completed === true;
+
+  // Select a stable "daily" puzzle from the easy fallback pool using date-based index
+  const easyPuzzles = FALLBACK_PUZZLES.filter((p) => p.difficulty === 'easy');
+  const idx = dateSeedIndex(today) % easyPuzzles.length;
+  const puzzle: GeneratedPuzzle = {
+    ...easyPuzzles[idx],
+    question: `[Daily] ${easyPuzzles[idx].question}`,
+  };
+
+  return { puzzle, alreadyCompleted };
 }

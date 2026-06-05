@@ -13,13 +13,16 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GameState } from '../hooks/useGameState';
 import { Puzzle } from '../data/puzzles';
+import RevealAnswerControl from './RevealAnswerControl';
 
 interface PuzzleScreenProps {
   gameState: GameState;
   currentPuzzle: Puzzle;
   onSubmitGuess: (guess: string) => void;
   onRevealHint: () => void;
+  onRevealAnswer: () => void; // FR-007
   onAdvancePuzzle: () => void; // called after solved or failed
+  isDailyChallenge?: boolean;  // disables RevealAnswer on daily puzzles
 }
 
 export default function PuzzleScreen({
@@ -27,7 +30,9 @@ export default function PuzzleScreen({
   currentPuzzle,
   onSubmitGuess,
   onRevealHint,
+  onRevealAnswer,
   onAdvancePuzzle,
+  isDailyChallenge = false,
 }: PuzzleScreenProps) {
   const [inputValue, setInputValue] = useState('');
   const shakeAnim = useRef(new Animated.Value(0)).current;
@@ -36,7 +41,8 @@ export default function PuzzleScreen({
 
   const isSolved = gameState.status === 'solved';
   const isFailed = gameState.status === 'failed';
-  const isFinished = isSolved || isFailed;
+  const isRevealed = gameState.status === 'revealed';
+  const isFinished = isSolved || isFailed || isRevealed;
   const hintsAvailable = 3 - gameState.revealedHintIndices.length;
   const potentialScore =
     100 - 15 * gameState.revealedHintIndices.length;
@@ -184,21 +190,31 @@ export default function PuzzleScreen({
             <View style={styles.hintsSectionHeader}>
               <Text style={styles.hintsSectionTitle}>💡 Hints</Text>
               {!isFinished && (
-                <TouchableOpacity
-                  testID="reveal-hint-button"
-                  style={[
-                    styles.revealHintButton,
-                    hintsAvailable === 0 && styles.revealHintButtonDisabled,
-                  ]}
-                  onPress={handleRevealHint}
-                  disabled={hintsAvailable === 0 || isFinished}
-                >
-                  <Text style={styles.revealHintButtonText}>
-                    {hintsAvailable > 0
-                      ? `Reveal Hint (-15 pts) · ${hintsAvailable} left`
-                      : 'No More Hints'}
-                  </Text>
-                </TouchableOpacity>
+                <View style={styles.hintButtons}>
+                  <TouchableOpacity
+                    testID="reveal-hint-button"
+                    style={[
+                      styles.revealHintButton,
+                      hintsAvailable === 0 && styles.revealHintButtonDisabled,
+                    ]}
+                    onPress={handleRevealHint}
+                    disabled={hintsAvailable === 0 || isFinished}
+                  >
+                    <Text style={styles.revealHintButtonText}>
+                      {hintsAvailable > 0
+                        ? `Reveal Hint (-15 pts) · ${hintsAvailable} left`
+                        : 'No More Hints'}
+                    </Text>
+                  </TouchableOpacity>
+                  {/* Reveal Answer button adjacent to Reveal Hint (FR-007) */}
+                  <RevealAnswerControl
+                    onReveal={onRevealAnswer}
+                    revealed={isRevealed}
+                    correctAnswer={currentPuzzle.answer}
+                    onNextPuzzle={onAdvancePuzzle}
+                    disabled={isDailyChallenge}
+                  />
+                </View>
               )}
             </View>
 
@@ -251,8 +267,19 @@ export default function PuzzleScreen({
             </View>
           )}
 
-          {/* Proceed button after finished */}
-          {isFinished && (
+          {/* Revealed state — RevealAnswerControl handles its own display */}
+          {isRevealed && (
+            <RevealAnswerControl
+              onReveal={onRevealAnswer}
+              revealed={true}
+              correctAnswer={currentPuzzle.answer}
+              onNextPuzzle={onAdvancePuzzle}
+              disabled={isDailyChallenge}
+            />
+          )}
+
+          {/* Proceed button after solved or failed (not revealed — handled above) */}
+          {(isSolved || isFailed) && (
             <TouchableOpacity
               testID="proceed-button"
               style={styles.proceedButton}
@@ -360,6 +387,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   hintsSectionTitle: { color: '#DDD6FE', fontSize: 15, fontWeight: '700' },
+  hintButtons: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-end',
+  },
   revealHintButton: {
     backgroundColor: 'rgba(124,58,237,0.25)',
     borderRadius: 10,

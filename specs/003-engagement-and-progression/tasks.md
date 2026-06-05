@@ -18,8 +18,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Initialize profile storage module in src/utils/profileStorage.ts
-- [ ] T002 Configure mock storage tests in tests/__mocks__/async-storage.ts
+- [X] T001 Initialize profile storage module in src/utils/profileStorage.ts
+- [X] T002 Configure mock storage tests in tests/__mocks__/async-storage.ts
 
 ---
 
@@ -29,10 +29,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 [P] Implement player profile manager services in src/services/profileManager.ts
-- [ ] T004 Implement profile hook wrapper in src/hooks/useProfileState.ts
-- [ ] T005 [P] Update endless mode level difficulty ratios to scale medium puzzles in src/services/puzzleManager.ts
-- [ ] T006 Add unit tests for endless mode scaling in tests/services/puzzleManager.test.ts
+- [X] T003 [P] Implement player profile manager services in src/services/profileManager.ts
+- [X] T004 Implement profile hook wrapper in src/hooks/useProfileState.ts
+- [X] T005 [P] Update endless mode level difficulty ratios to scale medium puzzles in src/services/puzzleManager.ts
+- [X] T006 Add unit tests for endless mode scaling in tests/services/puzzleManager.test.ts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -45,13 +45,13 @@
 **Independent Test**: Solving a puzzle increases the player's XP, and accumulating enough XP advances their level and rank in the local profile state.
 
 ### Tests for User Story 1
-- [ ] T007 [P] [US1] Create unit tests for XP leveling and rank titles in tests/services/profileManager.test.ts
-- [ ] T008 [US1] Implement experience points leveling up and rank title progression in src/services/profileManager.ts
+- [X] T007 [P] [US1] Create unit tests for XP leveling and rank titles in tests/services/profileManager.test.ts
+- [X] T008 [US1] Implement experience points leveling up and rank title progression in src/services/profileManager.ts
 
 ### Implementation for User Story 1
-- [ ] T009 [US1] Integrate profile manager into hooks in src/hooks/useProfileState.ts
-- [ ] T010 [US1] Add profile header UI component in src/components/ProfileHeader.tsx
-- [ ] T011 [US1] Integrate ProfileHeader component into main screens in App.tsx
+- [X] T009 [US1] Integrate profile manager into hooks in src/hooks/useProfileState.ts
+- [X] T010 [US1] Add profile header UI component in src/components/ProfileHeader.tsx
+- [X] T011 [US1] Integrate ProfileHeader component into main screens in App.tsx
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -64,12 +64,12 @@
 **Independent Test**: Click "Reveal Answer" on the puzzle screen, verify input/submit is disabled, score is 0, answer is shown, and "Next Puzzle" button advances to the next puzzle.
 
 ### Tests for User Story 2
-- [ ] T012 [P] [US2] Create integration tests for Reveal Answer flow in tests/integration/revealAnswer.test.ts
+- [X] T012 [P] [US2] Create integration tests for Reveal Answer flow in tests/integration/revealAnswer.test.ts
 
 ### Implementation for User Story 2
-- [ ] T013 [US2] Add reveal answer state handling in src/hooks/useGameState.ts
-- [ ] T014 [US2] Create RevealAnswerControl UI component in src/components/RevealAnswerControl.tsx
-- [ ] T015 [US2] Integrate RevealAnswerControl component into puzzle display in src/components/PuzzleScreen.tsx
+- [X] T013 [US2] Add reveal answer state handling in src/hooks/useGameState.ts
+- [X] T014 [US2] Create RevealAnswerControl UI component in src/components/RevealAnswerControl.tsx
+- [X] T015 [US2] Integrate RevealAnswerControl component into puzzle display in src/components/PuzzleScreen.tsx
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -82,13 +82,13 @@
 **Independent Test**: Solve a puzzle without hints and verify that the "Pure Genius" achievement is unlocked and displays an in-game notification.
 
 ### Tests for User Story 3
-- [ ] T016 [P] [US3] Create unit tests for achievement evaluation rules in tests/services/achievement.test.ts
+- [X] T016 [P] [US3] Create unit tests for achievement evaluation rules in tests/services/achievement.test.ts
 
 ### Implementation for User Story 3
-- [ ] T017 [US3] Implement achievement evaluator service in src/services/achievementEvaluator.ts
-- [ ] T018 [US3] Create AchievementToast UI component in src/components/AchievementToast.tsx
-- [ ] T019 [US3] Integrate achievement check and notifications in src/hooks/useProfileState.ts
-- [ ] T020 [US3] Render AchievementToast overlay in App.tsx
+- [X] T017 [US3] Implement achievement evaluator service in src/services/achievementEvaluator.ts
+- [X] T018 [US3] Create AchievementToast UI component in src/components/AchievementToast.tsx
+- [X] T019 [US3] Integrate achievement check and notifications in src/hooks/useProfileState.ts
+- [X] T020 [US3] Render AchievementToast overlay in App.tsx
 
 **Checkpoint**: At this point, User Stories 1, 2, and 3 should all work independently
 
@@ -101,12 +101,12 @@
 **Independent Test**: Open statistics dashboard from Welcome Screen and verify historical metrics calculated correctly.
 
 ### Tests for User Story 4
-- [ ] T021 [P] [US4] Create unit tests for game statistics aggregation in tests/hooks/useProfileState.test.ts
+- [X] T021 [P] [US4] Create unit tests for game statistics aggregation in tests/hooks/useProfileState.test.ts
 
 ### Implementation for User Story 4
-- [ ] T022 [US4] Implement GameStats tracking helpers in src/services/profileManager.ts
-- [ ] T023 [US4] Create StatsDashboard modal/screen in src/components/StatsDashboard.tsx
-- [ ] T024 [US4] Add Stats button on WelcomeScreen and wire up dashboard display in App.tsx
+- [X] T022 [US4] Implement GameStats tracking helpers in src/services/profileManager.ts
+- [X] T023 [US4] Create StatsDashboard modal/screen in src/components/StatsDashboard.tsx
+- [X] T024 [US4] Add Stats button on WelcomeScreen and wire up dashboard display in App.tsx
 
 **Checkpoint**: At this point, User Stories 1 to 4 should all work independently
 
@@ -119,13 +119,13 @@
 **Independent Test**: Open Daily Challenge screen, complete daily puzzle, verify 2x XP is awarded, and streak counter increments.
 
 ### Tests for User Story 5
-- [ ] T025 [P] [US5] Create unit tests for consecutive ISO date streak logic in tests/services/profileManager.test.ts
+- [X] T025 [P] [US5] Create unit tests for consecutive ISO date streak logic in tests/services/profileManager.test.ts
 
 ### Implementation for User Story 5
-- [ ] T026 [US5] Implement Daily Streak calculation and lastActiveDate tracking in src/services/profileManager.ts
-- [ ] T027 [US5] Create DailyChallengeModal UI component in src/components/DailyChallengeModal.tsx
-- [ ] T028 [US5] Implement Gemini daily puzzle generation or local fallback daily challenge loader in src/services/puzzleManager.ts
-- [ ] T029 [US5] Wire Daily Challenge access from Welcome Screen and update streaks on completion in App.tsx
+- [X] T026 [US5] Implement Daily Streak calculation and lastActiveDate tracking in src/services/profileManager.ts
+- [X] T027 [US5] Create DailyChallengeModal UI component in src/components/DailyChallengeModal.tsx
+- [X] T028 [US5] Implement Gemini daily puzzle generation or local fallback daily challenge loader in src/services/puzzleManager.ts
+- [X] T029 [US5] Wire Daily Challenge access from Welcome Screen and update streaks on completion in App.tsx
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -135,9 +135,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T030 Perform code cleanup and refactor shared hooks for profile storage optimization
-- [ ] T031 Verify all manual play-test guides defined in specs/003-engagement-and-progression/quickstart.md
-- [ ] T032 [P] Verify all Vitest unit and integration tests run successfully with zero warnings
+- [X] T030 Perform code cleanup and refactor shared hooks for profile storage optimization
+- [X] T031 Verify all manual play-test guides defined in specs/003-engagement-and-progression/quickstart.md
+- [X] T032 [P] Verify all Vitest unit and integration tests run successfully with zero warnings
 
 ---
 
