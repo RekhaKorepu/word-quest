@@ -1,5 +1,5 @@
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-[specs/002-ai-puzzle-generation/plan.md](specs/002-ai-puzzle-generation/plan.md)
+[specs/003-engagement-and-progression/plan.md](specs/003-engagement-and-progression/plan.md)
 <!-- SPECKIT END -->

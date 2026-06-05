@@ -8,6 +8,11 @@
 
 **Input**: User description: "The objective of Phase 3 is to introduce long-term engagement systems..."
 
+## Clarifications
+
+### Session 2026-06-05
+- Q: Player Profile Persistence on New Game → A: Option A (Persistent Profile - overall XP, Level, Rank, and achievements are preserved; only active level progress resets).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Player Profile & Experience System (Priority: P1)
@@ -95,7 +100,7 @@ As a player, I want to play a unique daily challenge puzzle every day to earn ex
 
 ### Functional Requirements
 
-- **FR-001**: **Profile Management**: The system MUST store and maintain a local player profile containing total score, levels completed, puzzles solved, guesses submitted, hints used, and rank titles.
+- **FR-001**: **Profile Management**: The system MUST store and maintain a local player profile containing total score, levels completed, puzzles solved, guesses submitted, hints used, and rank titles. The player profile and achievements MUST persist permanently across game sessions; starting a new game session MUST only reset the active level index, puzzle index, and active level score, leaving total XP, levels completed, rank, and unlocked achievements intact.
 - **FR-002**: **XP Progression**: Every point earned from solving a puzzle MUST contribute 1:1 to Player XP. Leveling up occurs every 500 XP (Level = `Math.floor(XP / 500) + 1`).
 - **FR-003**: **Rank Titles**: The profile MUST display player ranks based on level:
   - Level 1-4: "Novice"
