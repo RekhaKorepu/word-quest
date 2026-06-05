@@ -11,6 +11,7 @@ export type GameStatus =
   | 'playing'
   | 'solved'
   | 'failed'
+  | 'revealed'     // answer was revealed (FR-007)
   | 'levelComplete'
   | 'gameComplete';
 
@@ -91,7 +92,22 @@ export function revealHint(state: GameState): GameState {
   };
 }
 
+/**
+ * Reveal Answer: sets puzzle score to 0, disables further input (FR-007).
+ * No-op if the game is already in a terminal state.
+ */
+export function revealAnswer(state: GameState): GameState {
+  if (state.status !== 'playing') return state;
+  return {
+    ...state,
+    status: 'revealed',
+    puzzleScore: 0,
+  };
+}
+
 export function advancePuzzle(state: GameState): GameState {
+  // Accept terminal states: solved, failed, or revealed
+  if (!['solved', 'failed', 'revealed'].includes(state.status)) return state;
   const isLastPuzzle = state.currentPuzzleIndex >= 2;
   if (isLastPuzzle) {
     return {
@@ -182,6 +198,7 @@ export interface UseGameStateReturn {
   currentPuzzle: GeneratedPuzzle | null;
   handleSubmitGuess: (guess: string) => void;
   handleRevealHint: () => void;
+  handleRevealAnswer: () => void; // FR-007
   handleAdvancePuzzle: () => void;
   handleAdvanceLevel: () => void;
   handleStartNewGame: () => Promise<void>;
@@ -199,7 +216,7 @@ function getStaticLevel1Puzzles(levels: Level[]): GeneratedPuzzle[] {
   // Serve the first 3 puzzles for Level 1
   return shuffled.slice(0, 3).map(p => ({
     id: p.id,
-    question: `[Static] ${p.question}`,
+    question: p.question,
     answer: p.answer,
     hints: p.hints,
     difficulty: 'easy',
@@ -295,6 +312,10 @@ export function useGameState(levels: Level[]): UseGameStateReturn {
     setGameState((prev) => revealHint(prev));
   }, []);
 
+  const handleRevealAnswer = useCallback(() => {
+    setGameState((prev) => revealAnswer(prev));
+  }, []);
+
   const handleAdvancePuzzle = useCallback(() => {
     setGameState((prev) => advancePuzzle(prev));
   }, []);
@@ -317,6 +338,7 @@ export function useGameState(levels: Level[]): UseGameStateReturn {
     currentPuzzle,
     handleSubmitGuess,
     handleRevealHint,
+    handleRevealAnswer,
     handleAdvancePuzzle,
     handleAdvanceLevel,
     handleStartNewGame,

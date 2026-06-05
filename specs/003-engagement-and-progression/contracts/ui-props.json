@@ -1,0 +1,36 @@
+{
+  "interfaces": [
+    {
+      "component": "ProfileHeader",
+      "props": {
+        "xp": "number",
+        "level": "number",
+        "rank": "string"
+      }
+    },
+    {
+      "component": "StatsDashboard",
+      "props": {
+        "visible": "boolean",
+        "onClose": "() => void"
+      }
+    },
+    {
+      "component": "DailyChallengeModal",
+      "props": {
+        "visible": "boolean",
+        "onClose": "() => void",
+        "onComplete": "(score: number) => void"
+      }
+    },
+    {
+      "component": "RevealAnswerControl",
+      "props": {
+        "onReveal": "() => void",
+        "revealed": "boolean",
+        "correctAnswer": "string",
+        "onNextPuzzle": "() => void"
+      }
+    }
+  ]
+}

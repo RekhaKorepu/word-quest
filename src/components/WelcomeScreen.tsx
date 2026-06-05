@@ -12,12 +12,18 @@ interface WelcomeScreenProps {
   hasSavedProgress: boolean;
   onStartGame: () => void;
   onNewGame: () => void;
+  onShowStats: () => void;
+  onShowDailyChallenge: () => void;
+  streakCount: number;
 }
 
 export default function WelcomeScreen({
   hasSavedProgress,
   onStartGame,
   onNewGame,
+  onShowStats,
+  onShowDailyChallenge,
+  streakCount,
 }: WelcomeScreenProps) {
   // Animations
   const titleOpacity = useRef(new Animated.Value(0)).current;
@@ -175,6 +181,28 @@ export default function WelcomeScreen({
               <Text style={styles.secondaryButtonText}>↺  Start New Game</Text>
             </TouchableOpacity>
           )}
+
+          {/* Phase 3 Feature Buttons */}
+          <View style={styles.featureRow}>
+            <TouchableOpacity
+              testID="daily-challenge-button"
+              style={styles.featureButton}
+              onPress={onShowDailyChallenge}
+              activeOpacity={0.75}
+            >
+              <Text style={styles.featureButtonIcon}>⚡</Text>
+              <Text style={styles.featureButtonLabel}>Daily{streakCount > 0 ? ` 🔥${streakCount}` : ''}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              testID="stats-button"
+              style={styles.featureButton}
+              onPress={onShowStats}
+              activeOpacity={0.75}
+            >
+              <Text style={styles.featureButtonIcon}>📊</Text>
+              <Text style={styles.featureButtonLabel}>Stats</Text>
+            </TouchableOpacity>
+          </View>
         </Animated.View>
       </View>
     </SafeAreaView>
@@ -314,5 +342,32 @@ const styles = StyleSheet.create({
     color: '#A78BFA',
     fontSize: 15,
     fontWeight: '600',
+  },
+
+  // Phase 3 feature buttons row
+  featureRow: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  featureButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(167, 139, 250, 0.3)',
+    backgroundColor: 'rgba(124, 58, 237, 0.08)',
+  },
+  featureButtonIcon: {
+    fontSize: 16,
+  },
+  featureButtonLabel: {
+    color: '#A78BFA',
+    fontSize: 13,
+    fontWeight: '700',
   },
 });
