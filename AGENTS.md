@@ -1,5 +1,5 @@
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-[specs/003-engagement-and-progression/plan.md](specs/003-engagement-and-progression/plan.md)
+[specs/004-production-polish-and-audio/plan.md](specs/004-production-polish-and-audio/plan.md)
 <!-- SPECKIT END -->
