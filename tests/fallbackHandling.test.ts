@@ -38,8 +38,7 @@ describe('Fallback Handling & Cooldown', () => {
     expect(getQueue().length).toBe(3);
     const item = getQueue()[0];
     expect(item.difficulty).toBe('easy');
-    // Ensure it's one of our fallback puzzles
-    expect(FALLBACK_PUZZLES).toContainEqual(item);
+    verifyFallbackPuzzle(item);
   });
 
   it('bypasses the API completely while cooldown is active', async () => {
@@ -95,7 +94,17 @@ describe('Fallback Handling & Cooldown', () => {
     
     for (const puzzle of queue) {
       expect(['easy', 'medium']).toContain(puzzle.difficulty);
-      expect(FALLBACK_PUZZLES).toContainEqual(puzzle);
+      verifyFallbackPuzzle(puzzle);
     }
   });
 });
+
+function verifyFallbackPuzzle(puzzle: any) {
+  expect(puzzle.question.startsWith('[Fallback] ')).toBe(true);
+  const rawQuestion = puzzle.question.replace('[Fallback] ', '');
+  const matchingRaw = FALLBACK_PUZZLES.find((p) => p.id === puzzle.id);
+  expect(matchingRaw).toBeDefined();
+  expect(matchingRaw?.question).toBe(rawQuestion);
+  expect(matchingRaw?.answer).toBe(puzzle.answer);
+  expect(matchingRaw?.difficulty).toBe(puzzle.difficulty);
+}

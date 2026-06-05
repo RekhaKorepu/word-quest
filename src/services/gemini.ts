@@ -1,16 +1,62 @@
 import { CONFIG } from '../utils/config';
 import { GeneratedPuzzle } from '../data/fallbackPuzzles';
 
-export async function generateGeminiPuzzle(difficulty: 'easy' | 'medium'): Promise<GeneratedPuzzle> {
+const THEMES = [
+  'Animals & Wildlife',
+  'Food & Culinary',
+  'Science & Technology',
+  'Geography & Landmarks',
+  'Nature & Seasons',
+  'Everyday Household Objects',
+  'Sports & Activities',
+  'Music & Art',
+  'Space & Planets',
+  'Historical events or figures',
+  'Transportation & Vehicles',
+  'Occupations & Jobs',
+  'Hobbies & Entertainment',
+  'Literature & Fairy Tales',
+  'Weather & Natural phenomena',
+  'Clothing & Fashion',
+  'School & Office supplies',
+  'Tools & Construction',
+  'Gardening & Plants',
+  'Ocean & Sea life'
+];
+
+export async function generateGeminiPuzzle(
+  difficulty: 'easy' | 'medium',
+  avoidAnswers: string[] = [],
+  avoidQuestions: string[] = [],
+): Promise<GeneratedPuzzle> {
   const apiKey = CONFIG.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error('Gemini API key is not configured');
   }
 
-  const prompt = `Generate a single casual word puzzle for a mobile game. The puzzle MUST consist of:
-1. A question (a fun, easy-to-understand riddle or brain teaser).
-2. An answer (a single, simple word, in English, containing only alphabetic characters).
-3. Exactly three helpful progressive hints.
+  const avoidClause = avoidAnswers.length > 0
+    ? `\nThe answer MUST NOT be any of the following words: ${avoidAnswers.join(', ')}.`
+    : '';
+  const avoidQuestionClause = avoidQuestions.length > 0
+    ? `\nThe question MUST NOT be any of the following: ${avoidQuestions.join(', ')}.`
+    : '';
+
+  const randomTheme = THEMES[Math.floor(Math.random() * THEMES.length)];
+
+  const prompt = `Generate a single unique, creative, and casual word puzzle for a mobile game.
+The puzzle's theme or subject MUST be related to: "${randomTheme}".
+Avoid common, cliché riddles (e.g. do not make a riddle about a "clock", "towel", "fire", "echo", or "coin"). Be extremely creative and think of a novel riddle.
+
+CRITICAL INSTRUCTIONS:
+- The question MUST be written as a fun, engaging, and classic riddle (e.g., using "I have...", "I am...", "What am I?").
+- The riddle MUST be very EASY, simple, and straightforward to guess for a casual player. Do not make it obscure, convoluted, or too difficult.
+- The answer MUST be a very common, simple, and standard English word (e.g., "dog", "apple", "sun", "book", "rain", etc.) representing a familiar object, animal, or concept related to the theme.
+- The difficulty of the puzzle should be: ${difficulty}. (For 'easy', make it extremely simple, e.g. for children or quick plays. For 'medium', it can be a slightly cleverer riddle but still highly obvious once read).
+
+The puzzle MUST consist of:
+1. A question (the riddle or brain teaser).${avoidQuestionClause}
+2. An answer (a single, simple word, in English, containing only alphabetic characters).${avoidClause}
+3. Exactly three helpful progressive hints (starting broad and ending very specific).
 4. A difficulty level: either 'easy' or 'medium' (based on the requested difficulty: ${difficulty}).
 
 You must respond in valid JSON matching this schema:
@@ -40,11 +86,11 @@ You must respond in valid JSON matching this schema:
         ],
         generationConfig: {
           responseMimeType: 'application/json',
+          temperature: 1.2,
         },
       }),
     }
   );
-  console.log("response", response);
 
   if (!response.ok) {
     throw new Error(`Gemini API request failed: ${response.status} ${response.statusText || ''}`.trim());

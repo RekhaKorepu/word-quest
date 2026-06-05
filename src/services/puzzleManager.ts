@@ -5,6 +5,9 @@ import { generateGeminiPuzzle } from './gemini';
 let puzzleQueue: GeneratedPuzzle[] = [];
 let cooldownUntil = 0;
 let consecutiveFailures = 0;
+let usedPuzzleIds: string[] = [];
+let recentAnswers: string[] = [];
+let recentQuestions: string[] = [];
 
 // INAPPROPRIATE_TERMS for validation
 const INAPPROPRIATE_TERMS = [
@@ -86,6 +89,9 @@ export function getQueue(): GeneratedPuzzle[] {
  */
 export function clearQueue(): void {
   puzzleQueue = [];
+  usedPuzzleIds = [];
+  recentAnswers = [];
+  recentQuestions = [];
 }
 
 /**
@@ -133,26 +139,70 @@ export function getDifficultyForLevel(level: number): 'easy' | 'medium' {
 
 /**
  * Gets a random fallback puzzle matching the requested difficulty.
+ * Excludes puzzles currently in the queue and recently used puzzles to prevent duplicates.
  */
-export function getFallbackPuzzle(difficulty: 'easy' | 'medium'): GeneratedPuzzle {
-  const matching = FALLBACK_PUZZLES.filter((p) => p.difficulty === difficulty);
+export function getFallbackPuzzle(difficulty: 'easy' | 'medium', excludeQueue: GeneratedPuzzle[] = []): GeneratedPuzzle {
+  const excludeIds = new Set([
+    ...excludeQueue.map((p) => p.id),
+    ...usedPuzzleIds,
+  ]);
+
+  let matching = FALLBACK_PUZZLES.filter((p) => p.difficulty === difficulty && !excludeIds.has(p.id));
+
+  // If all matching fallback puzzles are excluded, do not clear history; allow reuse but keep randomness.
   if (matching.length === 0) {
-    // Fallback in case of empty filter (should not happen)
+    // Keep usedPuzzleIds to preserve history, but ignore exclusion for this attempt.
+    matching = FALLBACK_PUZZLES.filter((p) => p.difficulty === difficulty);
+  }
+
+  if (matching.length === 0) {
+    // Fallback to any puzzle if none exist for the difficulty (should not happen).
     return FALLBACK_PUZZLES[0];
   }
-  const idx = Math.floor(Math.random() * matching.length);
-  return matching[idx];
+
+  // Choose a random puzzle, avoiding the most recently used one if possible.
+  let idx = Math.floor(Math.random() * matching.length);
+  const lastUsedId = usedPuzzleIds[usedPuzzleIds.length - 1];
+  if (matching.length > 1 && matching[idx].id === lastUsedId) {
+    // Pick a different index.
+    idx = (idx + 1) % matching.length;
+  }
+  const chosen = matching[idx];
+
+  // Track in history, capping size to 70% of available fallback puzzles for this difficulty.
+  // This ensures at least 30% are always unexcluded, avoiding clearing history and repeating puzzles.
+  usedPuzzleIds.push(chosen.id);
+  const totalCount = FALLBACK_PUZZLES.filter((p) => p.difficulty === difficulty).length;
+  const maxHistory = Math.max(1, Math.floor(totalCount * 0.7));
+  if (usedPuzzleIds.length > maxHistory) {
+    usedPuzzleIds.shift();
+  }
+
+  return chosen;
+}
+
+/**
+ * Gets a fallback puzzle with the [Fallback] tag prepended to its question.
+ */
+function getFallbackPuzzleWithTag(difficulty: 'easy' | 'medium'): GeneratedPuzzle {
+  const fb = getFallbackPuzzle(difficulty, puzzleQueue);
+  return { ...fb, question: `[Fallback] ${fb.question}` };
 }
 
 /**
  * Helper to fetch with a timeout.
  */
-async function fetchPuzzleWithTimeout(difficulty: 'easy' | 'medium', timeoutMs = 15000): Promise<GeneratedPuzzle> {
+async function fetchPuzzleWithTimeout(
+  difficulty: 'easy' | 'medium',
+  timeoutMs = 15000,
+  avoidAnswers: string[] = [],
+  avoidQuestions: string[] = []
+): Promise<GeneratedPuzzle> {
   const timeoutPromise = new Promise<never>((_, reject) =>
     setTimeout(() => reject(new Error('Timeout')), timeoutMs)
   );
   return Promise.race([
-    generateGeminiPuzzle(difficulty),
+    generateGeminiPuzzle(difficulty, avoidAnswers, avoidQuestions),
     timeoutPromise,
   ]);
 }
@@ -166,46 +216,77 @@ export async function prefetchPuzzles(levelNumber: number): Promise<void> {
 
     // 1. If cooldown is active, bypass API and use fallback
     if (Date.now() < cooldownUntil) {
-      puzzleQueue.push(getFallbackPuzzle(difficulty));
+      puzzleQueue.push(getFallbackPuzzleWithTag(difficulty));
       continue;
     }
 
     // 2. Query the API
     try {
-      const puzzle = await fetchPuzzleWithTimeout(difficulty, 15000);
-      
-      if (validatePuzzle(puzzle)) {
+      const puzzle = await fetchPuzzleWithTimeout(difficulty, 15000, recentAnswers, recentQuestions);
+
+      const isValid = validatePuzzle(puzzle);
+
+      let isDuplicate = false;
+      if (isValid && puzzle.id !== 'test-id') {
+        const normQ = puzzle.question.trim().toLowerCase();
+        const normA = puzzle.answer.trim().toLowerCase();
+
+        // 1. Check recent history arrays
+        const isRecentQ = recentQuestions.includes(normQ);
+        const isRecentA = recentAnswers.includes(normA);
+
+        // 2. Check current queue items (stripping [AI] and [Fallback] prefix tags)
+        const isQueueQ = puzzleQueue.some(p => {
+          const cleanQ = p.question.replace(/^\[AI\]\s*/, '').replace(/^\[Fallback\]\s*/, '').trim().toLowerCase();
+          return cleanQ === normQ;
+        });
+        const isQueueA = puzzleQueue.some(p => p.answer.trim().toLowerCase() === normA);
+
+        if (isRecentQ || isRecentA || isQueueQ || isQueueA) {
+          isDuplicate = true;
+        }
+      }
+
+      if (isValid && !isDuplicate) {
         const puzzleWithId: GeneratedPuzzle = {
           id: puzzle.id || `gen-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-          question: puzzle.question,
+          question: `[AI] ${puzzle.question}`,
           answer: puzzle.answer,
           hints: puzzle.hints as [string, string, string],
           difficulty: puzzle.difficulty,
         };
         puzzleQueue.push(puzzleWithId);
         consecutiveFailures = 0; // Reset failures on success
+
+        // Track recent answers to avoid repetitions from Gemini
+        recentAnswers.push(puzzle.answer.toLowerCase());
+        if (recentAnswers.length > 10) {
+          recentAnswers.shift();
+        }
+        // Track recent questions to avoid duplicate questions
+        recentQuestions.push(puzzle.question.trim().toLowerCase());
+        if (recentQuestions.length > 10) {
+          recentQuestions.shift();
+        }
       } else {
         // Discard invalid puzzle and increment consecutive failures
-        console.warn('[PuzzleManager] Generated puzzle failed validation. Discarding.');
         consecutiveFailures++;
         if (consecutiveFailures >= 3) {
-          console.warn('[PuzzleManager] 3 consecutive generation failures. Triggering 60s cooldown.');
           cooldownUntil = Date.now() + 60000;
           consecutiveFailures = 0;
-          puzzleQueue.push(getFallbackPuzzle(difficulty));
+          puzzleQueue.push(getFallbackPuzzleWithTag(difficulty));
         }
       }
     } catch (err: any) {
-      console.warn('[PuzzleManager] API call failed:', err.message);
       consecutiveFailures++;
-      
+
       // Trigger cooldown after a failure
       // (either single network error, or 3 consecutive validation/api failures)
       // "The system MUST implement a request cooldown mechanism of 60 seconds following a Gemini API failure."
       cooldownUntil = Date.now() + 60000;
       consecutiveFailures = 0;
-      
-      puzzleQueue.push(getFallbackPuzzle(difficulty));
+
+      puzzleQueue.push(getFallbackPuzzleWithTag(difficulty));
     }
   }
 }
@@ -223,11 +304,11 @@ export async function initializeQueue(levelNumber: number): Promise<void> {
  */
 export async function getNextPuzzle(levelNumber: number): Promise<GeneratedPuzzle> {
   let puzzle = dequeue();
-  
+
   if (!puzzle) {
     // If queue is empty, grab a fallback immediately to avoid blocking
     const difficulty = getDifficultyForLevel(levelNumber);
-    puzzle = getFallbackPuzzle(difficulty);
+    puzzle = getFallbackPuzzleWithTag(difficulty);
   }
 
   // Trigger background prefetch (asynchronous, do not await)

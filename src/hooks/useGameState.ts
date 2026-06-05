@@ -187,11 +187,30 @@ export interface UseGameStateReturn {
   handleStartNewGame: () => Promise<void>;
 }
 
+function getStaticLevel1Puzzles(levels: Level[]): GeneratedPuzzle[] {
+  // Collect all static puzzles from predefined levels (first 5 levels of the array)
+  const staticPuzzles = levels
+    .slice(0, 5)
+    .flatMap(level => level.puzzles || []);
+
+  // Shuffle the static puzzles to ensure variety on Level 1
+  const shuffled = [...staticPuzzles].sort(() => Math.random() - 0.5);
+
+  // Serve the first 3 puzzles for Level 1
+  return shuffled.slice(0, 3).map(p => ({
+    id: p.id,
+    question: `[Static] ${p.question}`,
+    answer: p.answer,
+    hints: p.hints,
+    difficulty: 'easy',
+  }));
+}
+
 export function useGameState(levels: Level[]): UseGameStateReturn {
   const [gameState, setGameState] = useState<GameState>(createInitialPlayerState(levels));
   const [hasSavedProgress, setHasSavedProgress] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [levelPuzzles, setLevelPuzzles] = useState<GeneratedPuzzle[]>(() => levels[0]?.puzzles as any || []);
+  const [levelPuzzles, setLevelPuzzles] = useState<GeneratedPuzzle[]>(() => getStaticLevel1Puzzles(levels));
 
   // Load saved state on mount
   useEffect(() => {
@@ -223,7 +242,7 @@ export function useGameState(levels: Level[]): UseGameStateReturn {
       if (levelNum === 1) {
         // Level 1: use static default levels
         if (active) {
-          setLevelPuzzles(levels[0]?.puzzles as any || []);
+          setLevelPuzzles(getStaticLevel1Puzzles(levels));
         }
         // Prefetch level 2 in the background
         prefetchPuzzles(2).catch(console.error);
@@ -287,7 +306,7 @@ export function useGameState(levels: Level[]): UseGameStateReturn {
   const handleStartNewGame = useCallback(async () => {
     await clearSavedState();
     setHasSavedProgress(false);
-    setLevelPuzzles(levels[0]?.puzzles as any || []);
+    setLevelPuzzles(getStaticLevel1Puzzles(levels));
     setGameState(createInitialPlayerState(levels));
   }, [levels]);
 
